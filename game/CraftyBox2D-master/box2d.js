@@ -194,8 +194,14 @@ Crafty
 						// ShapeSetup is a string! A circle!
 						if (typeof shapeSetup === "string"
 								&& shapeSetup === "circle") {
-
-							shape = new b2CircleShape(this._w / PTM_RATIO / 2);
+							console.log('this._r:', this.r);
+							if (this.r) {
+								shape = new b2CircleShape(this.r / PTM_RATIO
+										/ 2);
+							} else {
+								shape = new b2CircleShape(this._w / PTM_RATIO
+										/ 2);
+							}
 
 							shape.SetLocalPosition(new b2Vec2(this._w
 									/ PTM_RATIO / 2, this._h / PTM_RATIO / 2));

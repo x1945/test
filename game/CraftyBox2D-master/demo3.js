@@ -1,6 +1,8 @@
 /* Author: @shogoki_vnz
  */
-var world, PTM_RATIO = 32, w = 300, h = 500, hw = w / 2, hh = h / 2, mouseJoint, ctx = this, isMouseDown = false, mouseX, mouseY, mousePVec, selectedBody;
+var size = 50;
+var zIndex = 8;
+var world, PTM_RATIO = 32, w = size * 6, h = size * 8, hw = w / 2, hh = h / 2, mouseJoint, ctx = this, isMouseDown = false, mouseX, mouseY, mousePVec, selectedBody;
 
 window.onload = function() {
 	gameInit();
@@ -8,7 +10,8 @@ window.onload = function() {
 
 gameInit = function() {
 	// start crafty
-	Crafty.init(w, h);
+	// Crafty.init(w, h);
+	Crafty.init(w, h, document.getElementById('game'));
 	// Crafty.canvas.init(); //Crafty.js 0.6.x
 	Crafty.canvasLayer.init(); // Crafty.js 0.7.x
 	// Init the box2d world, gx = 0, gy = 10
@@ -19,15 +22,35 @@ gameInit = function() {
 	// Start the Box2D debugger
 	// Crafty.box2D.showDebugInfo();
 	// load png
-	Crafty.sprite(100, "img/1026.png", {
+	Crafty.sprite(100, "img/822.png", {
 		role1 : [ 0, 0 ]
 	});
-	Crafty.sprite(100, "img/1047.png", {
+	Crafty.sprite(100, "img/912.png", {
 		role2 : [ 0, 0 ]
+	});
+	Crafty.sprite(100, "img/945.png", {
+		role3 : [ 0, 0 ]
+	});
+	Crafty.sprite(100, "img/1025.png", {
+		role4 : [ 0, 0 ]
+	});
+	Crafty.sprite(100, "img/1026.png", {
+		role5 : [ 0, 0 ]
+	});
+	Crafty.sprite(100, "img/1046.png", {
+		role6 : [ 0, 0 ]
+	});
+	Crafty.sprite(100, "img/1047.png", {
+		role7 : [ 0, 0 ]
+	});
+	Crafty.sprite(100, "img/1048.png", {
+		role8 : [ 0, 0 ]
 	});
 	Crafty.scene("loading", function() {
 		Crafty.load({
-			images : [ "img/1026.png", "img/1047.png" ]
+			images : [ "img/822.png", "img/912.png", "img/945.png",
+					"img/1025.png", "img/1026.png", "img/1046.png",
+					"img/1047.png", "img/1048.png" ]
 		}, function() {
 			console.log('load finish');
 			Crafty.scene("main");
@@ -52,9 +75,11 @@ gameInit = function() {
 }
 
 generateWorld = function() {
-
-	var walls = Crafty.e("2D, Canvas, Box2D").attr({
-		// var walls = Crafty.e("2D, Canvas, Color, Box2D, walls").attr({
+	// 邊牆
+	// density : 0, // 1.0 質量[旋轉](設置密度密度為0，即表示該剛體是靜止不動的)
+	// friction : 0, // 2 表面摩擦力
+	// restitution : 0, //彈性系數，1應該就是不衰減，大於1反而越來越快
+	var walls = Crafty.e("2D, Canvas, Color, Box2D, walls").attr({
 		x : 0,
 		y : 0
 	}).box2d({
@@ -62,41 +87,37 @@ generateWorld = function() {
 		density : 1.0,
 		friction : 10,
 		restitution : 0,
-		shape : [ [ 0, 0 ], [ w, 0 ], [ w, 10 ], [ 0, 10 ] ]
+		shape : [ [ 0, 0 ], [ w, 0 ] ]
 	});
-
 	walls.addFixture({
 		bodyType : 'static',
 		density : 1.0,
 		friction : 10,
 		restitution : 0,
-		shape : [ [ 0, 0 ], [ 10, 0 ], [ 10, h ], [ 0, h ] ]
+		shape : [ [ 0, 0 ], [ 0, h ] ]
 
 	});
-
 	walls.addFixture({
 		bodyType : 'static',
 		density : 1.0,
 		friction : 10,
 		restitution : 0,
-		shape : [ [ (w - 10), 0 ], [ w, 0 ], [ w, h ], [ (w - 10), h ], ]
+		shape : [ [ w, 0 ], [ w, h ] ]
 
 	});
-
 	walls.addFixture({
 		bodyType : 'static',
 		density : 1.0,
 		friction : 10,
 		restitution : 0,
-		shape : [ [ 0, (h - 10) ], [ w, (h - 10) ], [ w, h ], [ 0, h ] ]
-
+		shape : [ [ 0, h ], [ w, h ] ]
 	});
 
 	genterateChars();
 }
 
 genterateChars = function() {
-	for (var i = 0; i < 10; ++i) {
+	for (var i = 0; i < 8; ++i) {
 		var _w, _h, shape;
 
 		if (Math.random() > 0.5) {
@@ -108,12 +129,10 @@ genterateChars = function() {
 			_h = _w;
 			shape = "circle";
 		}
-		_w = 32;
-		_h = 32;
-//		 shape = "box";
+		// shape = "box";
 		shape = "circle";
-		var role = "2D, Canvas, Mouse, Box2D, " + "role" + ((i % 2) + 1);
-		console.log("role:" + role);
+		var role = "2D, Canvas, Mouse, Box2D, since, " + "role" + (i + 1);
+		// console.log("role:" + role);
 		// "2D, Canvas, ball, Mouse, Box2D"
 		var fallingElement = Crafty.e(role).origin("center").attr({
 			// var fallingElement = Crafty.e("2D, Canvas, Color, ball, Mouse,
@@ -121,18 +140,30 @@ genterateChars = function() {
 			// .origin("center").color("#ffffff").attr({
 			// x : Crafty.math.randomInt(30, w - 100),
 			// y : Crafty.math.randomInt(30, h - 100), // 0
-			x : (i % 6) * 50 + 4,
-			y : i * 50 + 4, // 0
-			h : _w,
-			w : _h
+			x : (i % 6) * size,
+			y : i * size, // 0
+			h : size,
+			w : size,
+			r : size - 10
 		}).box2d({
-			bodyType : i % 2 == 0 ? 'static' : 'dynamic', // dynamic
+			// bodyType : i % 2 == 0 ? 'static' : 'dynamic', // dynamic
 			// bodyType : 'dynamic', // dynamic
+			// bodyType : 'static', // static
 			density : 0, // 1.0 質量[旋轉](設置密度密度為0，即表示該剛體是靜止不動的)
 			friction : 0, // 2 表面摩擦力
 			restitution : 0, // 0.2 表面張力[彈力](這個值越大，剛體越硬) 彈力
 			shape : shape
-		});
+		}).onContact("since", function(data) {
+			var block = data[0].obj;
+			console.log('block since');
+			// block.remain--;
+			// if (block.remain <= 0) {
+			// world.DestroyBody(block.body);
+			// block.destroy();
+			// } else {
+			// block.colorme(block.remain - 1);
+			// }
+		})
 	}
 
 	Crafty.addEvent(ctx, "mousedown", function(e) {
@@ -146,6 +177,14 @@ genterateChars = function() {
 		isMouseDown = false;
 		mouseX = undefined;
 		mouseY = undefined;
+
+		if (selectedBody != null) {
+			// console.log('selectedBody:', selectedBody);
+			selectedBody.SetType(b2Body.b2_kinematicBody);
+			selectedBody.SetLinearVelocity(new b2Vec2(0, 0));
+			fixPosition(selectedBody);
+			selectedBody = null;
+		}
 	});
 
 	Crafty.bind("EnterFrame", onEnterFrame);
@@ -159,13 +198,14 @@ mousemoved = function(e) {
 getBodyAtMouse = function() {
 	mousePVec = new b2Vec2(mouseX, mouseY);
 	var aabb = new Box2D.Collision.b2AABB();
-	// aabb.lowerBound.Set(mouseX - 0.001, mouseY - 0.001);
-	// aabb.upperBound.Set(mouseX + 0.001, mouseY + 0.001);
-	aabb.lowerBound.Set(mouseX, mouseY);
-	aabb.upperBound.Set(mouseX, mouseY);
+	aabb.lowerBound.Set(mouseX - 0.001, mouseY - 0.001);
+	aabb.upperBound.Set(mouseX + 0.001, mouseY + 0.001);
+	// aabb.lowerBound.Set(mouseX, mouseY);
+	// aabb.upperBound.Set(mouseX, mouseY);
 	// Query the world for overlapping shapes.
-	selectedBody = null;
-	world.QueryAABB(getBodyCB, aabb);
+	// selectedBody = null;
+	if (selectedBody == null)
+		world.QueryAABB(getBodyCB, aabb);
 	return selectedBody;
 }
 
@@ -173,7 +213,16 @@ getBodyCB = function(fixture) {
 	if (fixture.GetBody().GetType() !== b2Body.b2_staticBody) {
 		if (fixture.GetShape().TestPoint(fixture.GetBody().GetTransform(),
 				mousePVec)) {
+			// console.log('fixture:', fixture);
 			selectedBody = fixture.GetBody();
+			//
+			// console.log('selectedBody:', selectedBody);
+			selectedBody.GetUserData().attr({
+				z : ++zIndex
+			});
+			// console.log('userData:', selectedBody.GetUserData());
+			selectedBody.SetType(b2Body.b2_dynamicBody);
+			// console.log('selectedBody.type:', selectedBody.GetType());
 			return false;
 		}
 	}
@@ -210,5 +259,22 @@ onEnterFrame = function() {
 			world.DestroyJoint(mouseJoint);
 			mouseJoint = null;
 		}
+	}
+}
+
+//
+function fixPosition(body) {
+	if (body != null) {
+		var data = body.GetUserData();
+		// console.log('userData:', data);
+		// 取絕對值再取中心點,再取臨界值
+		var x = Math.floor((Math.abs(data.x) + (size / 2)) / size);
+		var y = Math.floor((Math.abs(data.y) + (size / 2)) / size);
+		// console.log('data.x:', data.x, 'x:', x);
+		// console.log('data.y:', data.y, 'y:', y);
+		body.SetPosition({
+			x : x * size / PTM_RATIO,
+			y : y * size / PTM_RATIO
+		});
 	}
 }
