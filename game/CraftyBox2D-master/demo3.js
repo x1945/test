@@ -20,7 +20,7 @@ gameInit = function() {
 	Crafty.box2D.init(0, 0, PTM_RATIO, true);
 	world = Crafty.box2D.world;
 	// Start the Box2D debugger
-	// Crafty.box2D.showDebugInfo();
+	Crafty.box2D.showDebugInfo();
 	// load png
 	Crafty.sprite(100, "img/822.png", {
 		role1 : [ 0, 0 ]
@@ -144,7 +144,7 @@ genterateChars = function() {
 			y : i * size, // 0
 			h : size,
 			w : size,
-			r : size - 10
+			r : 0.5
 		}).box2d({
 			// bodyType : i % 2 == 0 ? 'static' : 'dynamic', // dynamic
 			// bodyType : 'dynamic', // dynamic

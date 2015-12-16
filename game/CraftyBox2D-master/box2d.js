@@ -190,19 +190,14 @@ Crafty
 						var shape;
 
 						var PTM_RATIO = Crafty.box2D.PTM_RATIO;
-
+						// add r by fantasy 2015/12/15
+						var _r = this.r || 1;
 						// ShapeSetup is a string! A circle!
 						if (typeof shapeSetup === "string"
 								&& shapeSetup === "circle") {
 							console.log('this._r:', this.r);
-							if (this.r) {
-								shape = new b2CircleShape(this.r / PTM_RATIO
-										/ 2);
-							} else {
-								shape = new b2CircleShape(this._w / PTM_RATIO
-										/ 2);
-							}
-
+							shape = new b2CircleShape(this._w * _r / PTM_RATIO
+									/ 2);
 							shape.SetLocalPosition(new b2Vec2(this._w
 									/ PTM_RATIO / 2, this._h / PTM_RATIO / 2));
 
@@ -225,9 +220,9 @@ Crafty
 						} else {
 
 							shape = new b2PolygonShape();
-							shape.SetAsOrientedBox((this.w / 2) / PTM_RATIO,
-									(this.h / 2) / PTM_RATIO, new b2Vec2(
-											(this.w / 2) / PTM_RATIO,
+							shape.SetAsOrientedBox((this.w * _r / 2)
+									/ PTM_RATIO, (this.h * _r / 2) / PTM_RATIO,
+									new b2Vec2((this.w / 2) / PTM_RATIO,
 											(this.h / 2) / PTM_RATIO));
 						}
 
