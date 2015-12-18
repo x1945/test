@@ -3,6 +3,7 @@
 var size = 50;
 var zIndex = 8;
 var world, PTM_RATIO = 32, w = size * 6, h = size * 8, hw = w / 2, hh = h / 2, mouseJoint, ctx = this, isMouseDown = false, mouseX, mouseY, mousePVec, selectedBody;
+var moveRoles = [];
 
 window.onload = function() {
 	gameInit();
@@ -144,7 +145,7 @@ genterateChars = function() {
 			y : i * size, // 0
 			h : size,
 			w : size,
-			r : 0.5
+			r : 0.75
 		}).box2d({
 			// bodyType : i % 2 == 0 ? 'static' : 'dynamic', // dynamic
 			// bodyType : 'dynamic', // dynamic
@@ -154,15 +155,21 @@ genterateChars = function() {
 			restitution : 0, // 0.2 表面張力[彈力](這個值越大，剛體越硬) 彈力
 			shape : shape
 		}).onContact("since", function(data) {
-			var block = data[0].obj;
-			console.log('block since');
-			// block.remain--;
-			// if (block.remain <= 0) {
-			// world.DestroyBody(block.body);
-			// block.destroy();
-			// } else {
-			// block.colorme(block.remain - 1);
-			// }
+			if (selectedBody != null) {
+				var sName = selectedBody.GetUserData()._entityName;
+				var block = data[0].obj;
+				var bName = block.body.GetUserData()._entityName;
+				if (sName != bName) {
+					console.log('sName:', sName, 'bName:', bName);
+					if (!block.onHit) {
+						block.onHit = true;
+						block.mp = getFixPosition(selectedBody);
+						block.mp.x *= size;
+						block.mp.y *= size;
+						moveRoles.push(block);
+					}
+				}
+			}
 		})
 	}
 
@@ -182,7 +189,7 @@ genterateChars = function() {
 			// console.log('selectedBody:', selectedBody);
 			selectedBody.SetType(b2Body.b2_kinematicBody);
 			selectedBody.SetLinearVelocity(new b2Vec2(0, 0));
-			fixPosition(selectedBody);
+			setFixPosition(selectedBody);
 			selectedBody = null;
 		}
 	});
@@ -204,8 +211,10 @@ getBodyAtMouse = function() {
 	// aabb.upperBound.Set(mouseX, mouseY);
 	// Query the world for overlapping shapes.
 	// selectedBody = null;
-	if (selectedBody == null)
+	if (selectedBody == null) {
 		world.QueryAABB(getBodyCB, aabb);
+		// moveRoles = [];
+	}
 	return selectedBody;
 }
 
@@ -260,21 +269,79 @@ onEnterFrame = function() {
 			mouseJoint = null;
 		}
 	}
+	var mrLen = moveRoles.length;
+	if (mrLen > 0) {
+		for (var i = 0; i < mrLen; i++) {
+			var block = moveRoles[i];
+			if (movePosition(block.body, block.mp)) {
+				// block.onHit = false;
+			}
+		}
+	}
 }
 
-//
-function fixPosition(body) {
-	if (body != null) {
+// 設定修正後之位置
+function setFixPosition(body) {
+	if (body) {
+		var data = body.GetUserData();
+		var p = getFixPosition(body);
+		setPosition(body, p);
+	}
+}
+
+// 取得修正後之位置
+function getFixPosition(body) {
+	if (body) {
 		var data = body.GetUserData();
 		// console.log('userData:', data);
 		// 取絕對值再取中心點,再取臨界值
 		var x = Math.floor((Math.abs(data.x) + (size / 2)) / size);
 		var y = Math.floor((Math.abs(data.y) + (size / 2)) / size);
-		// console.log('data.x:', data.x, 'x:', x);
-		// console.log('data.y:', data.y, 'y:', y);
+		return {
+			x : x,
+			y : y
+		}
+	}
+	return null;
+}
+
+// 設定位置
+function setPosition(body, p) {
+	if (body && p) {
 		body.SetPosition({
-			x : x * size / PTM_RATIO,
-			y : y * size / PTM_RATIO
+			x : p.x * size / PTM_RATIO,
+			y : p.y * size / PTM_RATIO
 		});
 	}
+}
+
+// 移動位置
+var mm = 0;
+function movePosition(body, p) {
+	// console.log('movePosition:', p);
+	if (mm > 10)
+		return;
+	mm++;
+	if (body && p) {
+		var data = body.GetUserData();
+		var mx = 0, my = 0;
+		if (data.x > p.x)
+			mx = -1;
+		if (data.x < p.x)
+			mx = 1;
+		if (data.y > p.y)
+			my = -1;
+		if (data.y < p.y)
+			my = 1;
+		console.log('movePosition:', data.x, data.y, p.x, p.y);
+		// setPosition(body, {
+		// x : mx,
+		// y : my
+		// });
+
+		body.ApplyImpulse(new b2Vec2(mx / PTM_RATIO, my / PTM_RATIO), body
+				.GetWorldCenter());
+		return true;
+	}
+	return true;
 }
