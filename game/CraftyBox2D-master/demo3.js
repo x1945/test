@@ -96,7 +96,6 @@ generateWorld = function() {
 		friction : 10,
 		restitution : 0,
 		shape : [ [ 0, 0 ], [ 0, h ] ]
-
 	});
 	walls.addFixture({
 		bodyType : 'static',
@@ -104,7 +103,6 @@ generateWorld = function() {
 		friction : 10,
 		restitution : 0,
 		shape : [ [ w, 0 ], [ w, h ] ]
-
 	});
 	walls.addFixture({
 		bodyType : 'static',
@@ -118,6 +116,7 @@ generateWorld = function() {
 }
 
 genterateChars = function() {
+
 	for (var i = 0; i < 8; ++i) {
 		var _w, _h, shape;
 
@@ -135,7 +134,10 @@ genterateChars = function() {
 		var role = "2D, Canvas, Mouse, Box2D, since, " + "role" + (i + 1);
 		// console.log("role:" + role);
 		// "2D, Canvas, ball, Mouse, Box2D"
-		var fallingElement = Crafty.e(role).origin("center").attr({
+
+		var r = Crafty.e(role);
+
+		var fallingElement = r.origin("center").attr({
 			// var fallingElement = Crafty.e("2D, Canvas, Color, ball, Mouse,
 			// Box2D")
 			// .origin("center").color("#ffffff").attr({
@@ -161,16 +163,39 @@ genterateChars = function() {
 				var bName = block.body.GetUserData()._entityName;
 				if (sName != bName) {
 					console.log('sName:', sName, 'bName:', bName);
-					if (!block.onHit) {
-						block.onHit = true;
-						block.mp = getFixPosition(selectedBody);
-						block.mp.x *= size;
-						block.mp.y *= size;
-						moveRoles.push(block);
-					}
+					// if (!block.onHit) {
+					// block.onHit = true;
+					// block.mp = getFixPosition(selectedBody);
+					// block.mp.x *= size;
+					// block.mp.y *= size;
+					// moveRoles.push(block);
+					// }
 				}
 			}
-		})
+		});
+
+		if (i == 0) {
+			var sq1 = Crafty.e("Square").color("rgba(255, 0, 0)");
+			sq1.bind('EnterFrame', function() {
+				this.x = r.x - 1;
+				this.y = r.y - 1;
+				this.z = r.z - 1;
+			});
+
+			var sq2 = Crafty.e("Square").color("rgba(255, 0, 0, 0.5)");
+			sq2.bind('EnterFrame', function() {
+				this.x = sq1.x - 5;
+				this.y = sq1.y - 5;
+				this.z = sq1.z - 1;
+			});
+
+			var sq3 = Crafty.e("Square").color("rgba(255, 0, 0, 0.1)");
+			sq3.bind('EnterFrame', function() {
+				this.x = sq2.x - 5;
+				this.y = sq2.y - 5;
+				this.z = sq2.z - 1;
+			});
+		}
 	}
 
 	Crafty.addEvent(ctx, "mousedown", function(e) {
