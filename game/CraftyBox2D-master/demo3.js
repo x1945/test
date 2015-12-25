@@ -21,7 +21,7 @@ gameInit = function() {
 	Crafty.box2D.init(0, 0, PTM_RATIO, true);
 	world = Crafty.box2D.world;
 	// Start the Box2D debugger
-	Crafty.box2D.showDebugInfo();
+	// Crafty.box2D.showDebugInfo();
 	// load png
 	Crafty.sprite(100, "img/822.png", {
 		role1 : [ 0, 0 ]
@@ -47,11 +47,14 @@ gameInit = function() {
 	Crafty.sprite(100, "img/1048.png", {
 		role8 : [ 0, 0 ]
 	});
+	Crafty.sprite(100, "img/monster.png", {
+		monster : [ 0, 0 ]
+	});
 	Crafty.scene("loading", function() {
 		Crafty.load({
 			images : [ "img/822.png", "img/912.png", "img/945.png",
 					"img/1025.png", "img/1026.png", "img/1046.png",
-					"img/1047.png", "img/1048.png" ]
+					"img/1047.png", "img/1048.png", "img/monster.png" ]
 		}, function() {
 			console.log('load finish');
 			Crafty.scene("main");
@@ -132,12 +135,13 @@ genterateChars = function() {
 		// shape = "box";
 		shape = "circle";
 		var role = "2D, Canvas, Mouse, Box2D, since, " + "role" + (i + 1);
+		// var role = "2D, Canvas, Mouse, Box2D, since";
+		// var role = "2D, Canvas, Mouse, Box2D, since";
 		// console.log("role:" + role);
 		// "2D, Canvas, ball, Mouse, Box2D"
 
-		var r = Crafty.e(role);
-
-		var fallingElement = r.origin("center").attr({
+		var r = Crafty.e(role).origin("center");
+		var fallingElement = r.attr({
 			// var fallingElement = Crafty.e("2D, Canvas, Color, ball, Mouse,
 			// Box2D")
 			// .origin("center").color("#ffffff").attr({
@@ -175,27 +179,46 @@ genterateChars = function() {
 		});
 
 		if (i == 0) {
-			var sq1 = Crafty.e("Square").color("rgba(255, 0, 0)");
-			sq1.bind('EnterFrame', function() {
-				this.x = r.x - 1;
-				this.y = r.y - 1;
-				this.z = r.z - 1;
-			});
-
-			var sq2 = Crafty.e("Square").color("rgba(255, 0, 0, 0.5)");
-			sq2.bind('EnterFrame', function() {
-				this.x = sq1.x - 5;
-				this.y = sq1.y - 5;
-				this.z = sq1.z - 1;
-			});
-
-			var sq3 = Crafty.e("Square").color("rgba(255, 0, 0, 0.1)");
-			sq3.bind('EnterFrame', function() {
-				this.x = sq2.x - 5;
-				this.y = sq2.y - 5;
-				this.z = sq2.z - 1;
-			});
+			// var sq1 = Crafty.e("Square").color("rgba(255, 0, 0)");
+			// sq1.bind('EnterFrame', function() {
+			// this.x = r.x - 1;
+			// this.y = r.y - 1;
+			// this.z = r.z - 1;
+			// });
+			//
+			// var sq2 = Crafty.e("Square").color("rgba(255, 0, 0, 0.5)");
+			// sq2.bind('EnterFrame', function() {
+			// this.x = sq1.x - 5;
+			// this.y = sq1.y - 5;
+			// this.z = sq1.z - 1;
+			// });
+			//
+			// var sq3 = Crafty.e("Square").color("rgba(255, 0, 0, 0.1)");
+			// sq3.origin("center");
+			// sq3.bind('EnterFrame', function() {
+			// this.x = sq2.x - 5;
+			// this.y = sq2.y - 5;
+			// this.z = sq2.z - 1;
+			// });
 		}
+		fallingElement.attach(Crafty.e('Square').attr({
+			x : (i % 6) * size,
+			y : i * size, // 0
+		}));
+		fallingElement.attach(Crafty.e('Square1').attr({
+			x : (i % 6) * size,
+			y : i * size, // 0
+		}));
+		fallingElement.attach(Crafty.e('Square2').attr({
+			x : (i % 6) * size,
+			y : i * size, // 0
+		}));
+		fallingElement.attach(Crafty.e('icon').set('monster').attr({
+			x : (i % 6) * size,
+			y : i * size,
+			w : 20,
+			h : 20
+		}));
 	}
 
 	Crafty.addEvent(ctx, "mousedown", function(e) {
@@ -220,6 +243,21 @@ genterateChars = function() {
 	});
 
 	Crafty.bind("EnterFrame", onEnterFrame);
+
+	// Crafty.e('VStackerContainer').attr({
+	// h : 200,
+	// w : 400,
+	// x : 10,
+	// y : 10
+	// }).appendItem(Crafty.e('MenuHeading').text('Heading 1')).appendItem(
+	// Crafty.e('Button, Text').text('Button 1')).appendItem(
+	// Crafty.e('HStackerContainer').attr({
+	// h : 100
+	// }).margin(20).padding(40).css({
+	// border : "solid thin black"
+	// }).appendItem(Crafty.e('MenuHeading').text('Heading 2'))
+	// .appendItem(Crafty.e('Button, Text').text('Button 2')))
+	// .render(true);
 }
 
 mousemoved = function(e) {
@@ -251,10 +289,20 @@ getBodyCB = function(fixture) {
 			selectedBody = fixture.GetBody();
 			//
 			// console.log('selectedBody:', selectedBody);
-			selectedBody.GetUserData().attr({
+			var userData = selectedBody.GetUserData()
+			userData.attr({
 				z : ++zIndex
 			});
-			// console.log('userData:', selectedBody.GetUserData());
+			if (userData._children) {
+				for ( var i in userData._children) {
+					var o = userData._children[i];
+					if (o.has("icon")) {
+						o.z = ++zIndex;
+					}
+				}
+			}
+
+			console.log('userData:', selectedBody.GetUserData());
 			selectedBody.SetType(b2Body.b2_dynamicBody);
 			// console.log('selectedBody.type:', selectedBody.GetType());
 			return false;
