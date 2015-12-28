@@ -1,5 +1,3 @@
-/* Author: @shogoki_vnz
- */
 var size = 50;
 var zIndex = 8;
 var world, PTM_RATIO = 32, w = size * 6, h = size * 8, hw = w / 2, hh = h / 2, mouseJoint, ctx = this, isMouseDown = false, mouseX, mouseY, mousePVec, selectedBody;
@@ -47,15 +45,50 @@ gameInit = function() {
 	Crafty.sprite(100, "img/1048.png", {
 		role8 : [ 0, 0 ]
 	});
-	Crafty.sprite(100, "img/monster.png", {
-		monster : [ 0, 0 ]
+
+	// characteristic
+	Crafty.sprite(24, "img/IconSet.png", {
+		characteristic0 : [ 8, 6 ],
+		characteristic1 : [ 9, 6 ],
+		characteristic2 : [ 10, 6 ],
+		characteristic3 : [ 11, 6 ],
+		characteristic4 : [ 12, 6 ],
+		characteristic5 : [ 13, 6 ],
+		characteristic6 : [ 14, 6 ],
+		characteristic7 : [ 15, 6 ],
+		characteristic8 : [ 16, 6 ]
 	});
+
+	// status
+	Crafty.sprite(32, "Animations/Balloon.png", {
+		status0 : [ 0, 0 ],
+		status1 : [ 0, 1 ],
+		status2 : [ 0, 2 ],
+		status3 : [ 0, 3 ],
+		status4 : [ 0, 4 ],
+		status5 : [ 0, 5 ],
+		status6 : [ 0, 6 ],
+		status7 : [ 0, 7 ],
+		status8 : [ 0, 8 ]
+	});
+
+	// attack
+	Crafty.sprite(192, "Animations/Attack1.png", {
+		Attack1 : [ 0, 0 ]
+	});
+
 	Crafty.scene("loading", function() {
 		Crafty.load({
 			images : [ "img/822.png", "img/912.png", "img/945.png",
 					"img/1025.png", "img/1026.png", "img/1046.png",
-					"img/1047.png", "img/1048.png", "img/monster.png" ]
+					"img/1047.png", "img/1048.png", "img/IconSet.png",
+					"Animations/Attack1.png", "Animations/Balloon.png" ],
+			audio : {
+				"theme" : [ "audio/theme.mp3" ],
+				"Explosion" : [ "audio/Explosion1.ogg" ]
+			}
 		}, function() {
+			// Crafty.audio.play("theme", -1);
 			console.log('load finish');
 			Crafty.scene("main");
 		});
@@ -160,47 +193,69 @@ genterateChars = function() {
 			friction : 0, // 2 表面摩擦力
 			restitution : 0, // 0.2 表面張力[彈力](這個值越大，剛體越硬) 彈力
 			shape : shape
-		}).onContact("since", function(data) {
-			if (selectedBody != null) {
-				var sName = selectedBody.GetUserData()._entityName;
-				var block = data[0].obj;
-				var bName = block.body.GetUserData()._entityName;
-				if (sName != bName) {
-					console.log('sName:', sName, 'bName:', bName);
-					// if (!block.onHit) {
-					// block.onHit = true;
-					// block.mp = getFixPosition(selectedBody);
-					// block.mp.x *= size;
-					// block.mp.y *= size;
-					// moveRoles.push(block);
-					// }
-				}
-			}
-		});
+		}).onContact(
+				"since",
+				function(data) {
+					if (selectedBody != null) {
+						var sName = selectedBody.GetUserData()._entityName;
+						var block = data[0].obj;
+						var bName = block.body.GetUserData()._entityName;
+						if (block.hurt) {
+							if (block.hurt.isDestory)
+								block.hurt = null;
+						}
+						if (sName != bName && block.hurt == null) {
+							// selectedBody.SetActive(false);
+							// block.body.SetBullet(true);
+							block.body.SetType(b2Body.b2_kinematicBody);
+							block.body.SetLinearVelocity(new b2Vec2(
+									300 / PTM_RATIO, 0));
+							// selectedBody.SetType(b2Body.b2_staticBody);
+							// console.log(block.body.GetUserData());
+							// console.log(block.body.GetUserData());
+							console.log(selectedBody.GetFixtureList()
+									.GetFilterData());
+							console.log(block.body.GetFixtureList()
+									.GetFilterData());
 
-		if (i == 0) {
-			// var sq1 = Crafty.e("Square").color("rgba(255, 0, 0)");
-			// sq1.bind('EnterFrame', function() {
-			// this.x = r.x - 1;
-			// this.y = r.y - 1;
-			// this.z = r.z - 1;
-			// });
-			//
-			// var sq2 = Crafty.e("Square").color("rgba(255, 0, 0, 0.5)");
-			// sq2.bind('EnterFrame', function() {
-			// this.x = sq1.x - 5;
-			// this.y = sq1.y - 5;
-			// this.z = sq1.z - 1;
-			// });
-			//
-			// var sq3 = Crafty.e("Square").color("rgba(255, 0, 0, 0.1)");
-			// sq3.origin("center");
-			// sq3.bind('EnterFrame', function() {
-			// this.x = sq2.x - 5;
-			// this.y = sq2.y - 5;
-			// this.z = sq2.z - 1;
-			// });
-		}
+							Crafty.audio.play("Explosion");
+							// console.log('sName:', sName, 'bName:', bName);
+							// if (!block.onHit) {
+							// block.onHit = true;
+							// block.mp = getFixPosition(selectedBody);
+							// block.mp.x *= size;
+							// block.mp.y *= size;
+							// moveRoles.push(block);
+							// }
+							var data = block.body.GetUserData();
+							var number = Crafty.math.randomInt(1000, 9999);
+							var dx = data.x + 12;
+							var dy = data.y + 12;
+							var dz = selectedBody.GetUserData().z + 1;
+							block.hurt = Crafty.e("hurt").display(number,
+									'#ff0000', dx, dy, dz);
+
+							var attack = Crafty
+									.e("2D, Canvas, SpriteAnimation, Attack1");
+							// console.log('attack:', attack.w, attack.h);
+							attack.attr({
+								x : data.x + size / 2 - attack.w / 2,
+								y : data.y + size / 2 - attack.h / 2,
+								z : dz + 1
+							});
+							attack.origin("center");
+							attack.reel("attack1Action", 100, [ [ 0, 0 ],
+									[ 1, 0 ], [ 2, 0 ] ]);
+							attack.animate("attack1Action", 1);
+							attack.bind('EnterFrame', function() {
+								if (!this.isPlaying('attack1Action')) {
+									this.destroy();
+								}
+							});
+						}
+					}
+				});
+
 		fallingElement.attach(Crafty.e('Square').attr({
 			x : (i % 6) * size,
 			y : i * size, // 0
@@ -213,12 +268,25 @@ genterateChars = function() {
 			x : (i % 6) * size,
 			y : i * size, // 0
 		}));
-		fallingElement.attach(Crafty.e('icon').set('monster').attr({
+
+		// characteristic
+		fallingElement.attach(Crafty.e('icon').set('characteristic' + i).attr({
 			x : (i % 6) * size,
 			y : i * size,
 			w : 20,
 			h : 20
 		}));
+
+		// status
+		var status = Crafty.e("2D, Canvas, SpriteAnimation, status" + i);
+		status.attr({
+			x : (i % 6) * size + 20,
+			y : i * size - 32,
+		});
+		status.reel("statusAction", 1000, [ [ 1, i ], [ 2, i ], [ 3, i ],
+				[ 4, i ], [ 5, i ], [ 6, i ], [ 7, i ] ]);
+		status.animate("statusAction", -1);
+		fallingElement.attach(status);
 	}
 
 	Crafty.addEvent(ctx, "mousedown", function(e) {
@@ -243,21 +311,6 @@ genterateChars = function() {
 	});
 
 	Crafty.bind("EnterFrame", onEnterFrame);
-
-	// Crafty.e('VStackerContainer').attr({
-	// h : 200,
-	// w : 400,
-	// x : 10,
-	// y : 10
-	// }).appendItem(Crafty.e('MenuHeading').text('Heading 1')).appendItem(
-	// Crafty.e('Button, Text').text('Button 1')).appendItem(
-	// Crafty.e('HStackerContainer').attr({
-	// h : 100
-	// }).margin(20).padding(40).css({
-	// border : "solid thin black"
-	// }).appendItem(Crafty.e('MenuHeading').text('Heading 2'))
-	// .appendItem(Crafty.e('Button, Text').text('Button 2')))
-	// .render(true);
 }
 
 mousemoved = function(e) {
@@ -299,10 +352,13 @@ getBodyCB = function(fixture) {
 					if (o.has("icon")) {
 						o.z = ++zIndex;
 					}
+					if (o.has("SpriteAnimation")) {
+						o.z = ++zIndex;
+					}
 				}
 			}
 
-			console.log('userData:', selectedBody.GetUserData());
+			// console.log('userData:', selectedBody.GetUserData());
 			selectedBody.SetType(b2Body.b2_dynamicBody);
 			// console.log('selectedBody.type:', selectedBody.GetType());
 			return false;

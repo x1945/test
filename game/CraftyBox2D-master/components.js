@@ -12,6 +12,43 @@ Crafty.c("Border", {
 	}
 });
 
+Crafty.c("hurt", {
+	init : function() {
+		this.addComponent("2D, Canvas, Text");
+	},
+	count : 0,
+	display : function(text, color, x, y, z) {
+		this.x = x;
+		this.y = y;
+		this.z = z;
+		this.text(text);
+		this.color = color;
+		this.textColor(this.color);
+		this._strength = 0.5;
+		return this;
+	},
+	events : {
+		"EnterFrame" : function() {
+			this.x--;
+			this.y -= 2;
+			if (this.count++ < 30) {
+				if (this.count < 15) {
+					this._strength += 0.05;
+				} else {
+					this._strength -= 0.05;
+				}
+				this.textFont({
+					size : (this.count + 10) + 'px'
+				});
+				this.textColor(this.color);
+			} else {
+				this.destroy();
+				this.isDestory = true;
+			}
+		}
+	}
+});
+
 Crafty.c("Square", {
 	// This function will be called when the component is added to an entity
 	// So it sets up the things that both our entities had in common
@@ -52,11 +89,11 @@ Crafty.c("Square1", {
 		this.origin("center");
 	},
 	events : {
-	// bind the given function to the blush event
-	 "EnterFrame" : function() {
+		// bind the given function to the blush event
+		"EnterFrame" : function() {
 			// if (this._parent) {
 			// this.z = this._parent.z - 1;
-			//			}
+			// }
 			this.rotation = this.rotation + 2;
 		}
 	}
@@ -76,11 +113,11 @@ Crafty.c("Square2", {
 		this.origin("center");
 	},
 	events : {
-	// bind the given function to the blush event
-	 "EnterFrame" : function() {
+		// bind the given function to the blush event
+		"EnterFrame" : function() {
 			// if (this._parent) {
 			// this.z = this._parent.z - 1;
-			//			}
+			// }
 			this.rotation = this.rotation + 3;
 		}
 	}
