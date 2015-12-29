@@ -1,7 +1,6 @@
 var size = 50;
 var zIndex = 8;
-var world, PTM_RATIO = 32, w = size * 6, h = size * 8, hw = w / 2, hh = h / 2, mouseJoint, ctx = this, isMouseDown = false, mouseX, mouseY, mousePVec, selectedBody;
-var moveRoles = [];
+var world, PTM_RATIO = 32, w = size * 6, h = size * 8, hw = w / 2, hh = h / 2, mouseJoint, ctx = this, isMouseDown = false, mouseX, mouseY, mousePVec, selectedBody, selectedFixture;
 
 window.onload = function() {
 	gameInit();
@@ -19,7 +18,7 @@ gameInit = function() {
 	Crafty.box2D.init(0, 0, PTM_RATIO, true);
 	world = Crafty.box2D.world;
 	// Start the Box2D debugger
-	// Crafty.box2D.showDebugInfo();
+	Crafty.box2D.showDebugInfo();
 	// load png
 	Crafty.sprite(100, "img/822.png", {
 		role1 : [ 0, 0 ]
@@ -165,8 +164,8 @@ genterateChars = function() {
 			_h = _w;
 			shape = "circle";
 		}
-		// shape = "box";
-		shape = "circle";
+		shape = "box";
+		// shape = "circle";
 		var role = "2D, Canvas, Mouse, Box2D, since, " + "role" + (i + 1);
 		// var role = "2D, Canvas, Mouse, Box2D, since";
 		// var role = "2D, Canvas, Mouse, Box2D, since";
@@ -174,87 +173,108 @@ genterateChars = function() {
 		// "2D, Canvas, ball, Mouse, Box2D"
 
 		var r = Crafty.e(role).origin("center");
-		var fallingElement = r.attr({
-			// var fallingElement = Crafty.e("2D, Canvas, Color, ball, Mouse,
-			// Box2D")
-			// .origin("center").color("#ffffff").attr({
-			// x : Crafty.math.randomInt(30, w - 100),
-			// y : Crafty.math.randomInt(30, h - 100), // 0
-			x : (i % 6) * size,
-			y : i * size, // 0
-			h : size,
-			w : size,
-			r : 0.75
-		}).box2d({
-			// bodyType : i % 2 == 0 ? 'static' : 'dynamic', // dynamic
-			// bodyType : 'dynamic', // dynamic
-			// bodyType : 'static', // static
-			density : 0, // 1.0 質量[旋轉](設置密度密度為0，即表示該剛體是靜止不動的)
-			friction : 0, // 2 表面摩擦力
-			restitution : 0, // 0.2 表面張力[彈力](這個值越大，剛體越硬) 彈力
-			shape : shape
-		}).onContact(
-				"since",
-				function(data) {
-					if (selectedBody != null) {
-						var sName = selectedBody.GetUserData()._entityName;
-						var block = data[0].obj;
-						var bName = block.body.GetUserData()._entityName;
-						if (block.hurt) {
-							if (block.hurt.isDestory)
-								block.hurt = null;
-						}
-						if (sName != bName && block.hurt == null) {
-							// selectedBody.SetActive(false);
-							// block.body.SetBullet(true);
-							block.body.SetType(b2Body.b2_kinematicBody);
-							block.body.SetLinearVelocity(new b2Vec2(
-									300 / PTM_RATIO, 0));
-							// selectedBody.SetType(b2Body.b2_staticBody);
-							// console.log(block.body.GetUserData());
-							// console.log(block.body.GetUserData());
-							console.log(selectedBody.GetFixtureList()
-									.GetFilterData());
-							console.log(block.body.GetFixtureList()
-									.GetFilterData());
-
-							Crafty.audio.play("Explosion");
-							// console.log('sName:', sName, 'bName:', bName);
-							// if (!block.onHit) {
-							// block.onHit = true;
-							// block.mp = getFixPosition(selectedBody);
-							// block.mp.x *= size;
-							// block.mp.y *= size;
-							// moveRoles.push(block);
-							// }
-							var data = block.body.GetUserData();
-							var number = Crafty.math.randomInt(1000, 9999);
-							var dx = data.x + 12;
-							var dy = data.y + 12;
-							var dz = selectedBody.GetUserData().z + 1;
-							block.hurt = Crafty.e("hurt").display(number,
-									'#ff0000', dx, dy, dz);
-
-							var attack = Crafty
-									.e("2D, Canvas, SpriteAnimation, Attack1");
-							// console.log('attack:', attack.w, attack.h);
-							attack.attr({
-								x : data.x + size / 2 - attack.w / 2,
-								y : data.y + size / 2 - attack.h / 2,
-								z : dz + 1
-							});
-							attack.origin("center");
-							attack.reel("attack1Action", 100, [ [ 0, 0 ],
-									[ 1, 0 ], [ 2, 0 ] ]);
-							attack.animate("attack1Action", 1);
-							attack.bind('EnterFrame', function() {
-								if (!this.isPlaying('attack1Action')) {
-									this.destroy();
+		var fallingElement = r
+				.attr({
+					// var fallingElement = Crafty.e("2D, Canvas, Color, ball,
+					// Mouse,
+					// Box2D")
+					// .origin("center").color("#ffffff").attr({
+					// x : Crafty.math.randomInt(30, w - 100),
+					// y : Crafty.math.randomInt(30, h - 100), // 0
+					x : (i % 6) * size,
+					y : i * size, // 0
+					h : size,
+					w : size,
+					r : 0.475
+				})
+				.box2d({
+					isSensor : true, // 傳感器(default:true, 碰撞時反饋
+					// categoryBits : (i % 2 == 0 ? 2 : 4),
+					// maskBits : (i % 2 == 0 ? 3 : 5),
+					// groupIndex : i % 3,
+					// bodyType : i % 2 == 0 ? 'static' : 'dynamic', // dynamic
+					// bodyType : 'dynamic', // dynamic
+					// bodyType : 'static', // static
+					density : 0, // 1.0 質量[旋轉](設置密度密度為0，即表示該剛體是靜止不動的)
+					friction : 0, // 2 表面摩擦力
+					restitution : 0, // 0.2 表面張力[彈力](這個值越大，剛體越硬) 彈力
+					shape : shape
+				})
+				.onContact(
+						"since",
+						function(data) {
+							if (selectedBody != null) {
+								var sName = selectedBody.GetUserData()._entityName;
+								var block = data[0].obj;
+								var bName = block.body.GetUserData()._entityName;
+								if (block.hurt) {
+									if (block.hurt.isDestory)
+										block.hurt = null;
 								}
-							});
-						}
-					}
-				});
+								if (sName != bName && block.hurt == null) {
+									// if (sName != bName) {
+									// selectedBody.SetActive(false);
+									// block.body.SetBullet(true);
+									// console.log('block:', block);
+									// block.body.SetType(b2Body.b2_kinematicBody);
+									// block.body.SetType(b2Body.b2_dynamicBody);
+									// block.body.SetLinearVelocity(new b2Vec2(
+									// 300 / PTM_RATIO, 0));
+									// block.fixtures
+									// selectedBody.SetType(b2Body.b2_staticBody);
+									// console.log('selectedBody.GetPosition():',
+									// selectedBody.GetPosition());
+									// console.log('selectedBody.GetLinearVelocity():',
+									// selectedBody.GetLinearVelocity());
+									// console.log('getFixPosition:',
+									// getFixPosition(selectedBody));
+
+									// var p = getSwitchPosition(selectedBody,
+									// block.body);
+									var p = getSwitchPosition2(selectedBody,
+											block.body);
+									console.log('switchPosition:', p);
+									setPosition(block.body, p);
+
+									Crafty.audio.play("Explosion");
+									// console.log('sName:', sName, 'bName:',
+									// bName);
+									// if (!block.onHit) {
+									// block.onHit = true;
+									// block.mp = getFixPosition(selectedBody);
+									// block.mp.x *= size;
+									// block.mp.y *= size;
+									// }
+									var data = block.body.GetUserData();
+									var number = Crafty.math.randomInt(1000,
+											9999);
+									var dx = data.x + 12;
+									var dy = data.y + 12;
+									var dz = selectedBody.GetUserData().z + 1;
+									block.hurt = Crafty.e("hurt").display(
+											number, '#ff0000', dx, dy, dz);
+
+									var attack = Crafty
+											.e("2D, Canvas, SpriteAnimation, Attack1");
+									// console.log('attack:', attack.w,
+									// attack.h);
+									attack.attr({
+										x : data.x + size / 2 - attack.w / 2,
+										y : data.y + size / 2 - attack.h / 2,
+										z : dz + 1
+									});
+									attack.origin("center");
+									attack.reel("attack1Action", 100, [
+											[ 0, 0 ], [ 1, 0 ], [ 2, 0 ] ]);
+									attack.animate("attack1Action", 1);
+									attack.bind('EnterFrame', function() {
+										if (!this.isPlaying('attack1Action')) {
+											this.destroy();
+										}
+									});
+								}
+							}
+						});
 
 		fallingElement.attach(Crafty.e('Square').attr({
 			x : (i % 6) * size,
@@ -307,6 +327,9 @@ genterateChars = function() {
 			selectedBody.SetLinearVelocity(new b2Vec2(0, 0));
 			setFixPosition(selectedBody);
 			selectedBody = null;
+
+			selectedFixture.SetSensor(true);
+			selectedFixture = null;
 		}
 	});
 
@@ -329,7 +352,6 @@ getBodyAtMouse = function() {
 	// selectedBody = null;
 	if (selectedBody == null) {
 		world.QueryAABB(getBodyCB, aabb);
-		// moveRoles = [];
 	}
 	return selectedBody;
 }
@@ -338,10 +360,11 @@ getBodyCB = function(fixture) {
 	if (fixture.GetBody().GetType() !== b2Body.b2_staticBody) {
 		if (fixture.GetShape().TestPoint(fixture.GetBody().GetTransform(),
 				mousePVec)) {
-			// console.log('fixture:', fixture);
+			selectedFixture = fixture;
+			// console.log('selectedFixture:', selectedFixture);
+			selectedFixture.SetSensor(false); // 只感
 			selectedBody = fixture.GetBody();
-			//
-			// console.log('selectedBody:', selectedBody);
+
 			var userData = selectedBody.GetUserData()
 			userData.attr({
 				z : ++zIndex
@@ -366,6 +389,8 @@ getBodyCB = function(fixture) {
 	}
 	return true;
 }
+
+var pp = {};
 
 onEnterFrame = function() {
 	if (isMouseDown && (!mouseJoint)) {
@@ -393,18 +418,11 @@ onEnterFrame = function() {
 	if (mouseJoint) {
 		if (isMouseDown) {
 			mouseJoint.SetTarget(new b2Vec2(mouseX, mouseY));
+			// pp = getFixPosition(selectedBody);
+			// console.log('pp:', pp);
 		} else {
 			world.DestroyJoint(mouseJoint);
 			mouseJoint = null;
-		}
-	}
-	var mrLen = moveRoles.length;
-	if (mrLen > 0) {
-		for (var i = 0; i < mrLen; i++) {
-			var block = moveRoles[i];
-			if (movePosition(block.body, block.mp)) {
-				// block.onHit = false;
-			}
 		}
 	}
 }
@@ -444,33 +462,70 @@ function setPosition(body, p) {
 	}
 }
 
-// 移動位置
-var mm = 0;
-function movePosition(body, p) {
-	// console.log('movePosition:', p);
-	if (mm > 10)
-		return;
-	mm++;
-	if (body && p) {
-		var data = body.GetUserData();
-		var mx = 0, my = 0;
-		if (data.x > p.x)
-			mx = -1;
-		if (data.x < p.x)
-			mx = 1;
-		if (data.y > p.y)
-			my = -1;
-		if (data.y < p.y)
-			my = 1;
-		console.log('movePosition:', data.x, data.y, p.x, p.y);
-		// setPosition(body, {
-		// x : mx,
-		// y : my
-		// });
+// 取得位置(由向量做修正)
+function getSwitchPosition(body1, body2) {
+	if (body1 && body2) {
+		var k = 10;
+		var data = body2.GetUserData();
+		var vec = body1.GetLinearVelocity();
+		console.log('vec:', vec);
+		var v = {
+			x : Math.abs(vec.x) > k ? (vec.x > 0 ? k : -k) : vec.x,
+			y : Math.abs(vec.y) > k ? (vec.y > 0 ? k : -k) : vec.y
+		};
+		var p1 = getFixPosition(body2);
+		var p2 = getFixPosition(body2);
 
-		body.ApplyImpulse(new b2Vec2(mx / PTM_RATIO, my / PTM_RATIO), body
-				.GetWorldCenter());
-		return true;
+		var i = 1;
+		// console.log('getSwitchPosition:', p1, p2);
+		do {
+			p2.x = Math.floor((Math.abs(data.x - v.x * i) + (size / 2)) / size);
+			p2.y = Math.floor((Math.abs(data.y - v.y * i) + (size / 2)) / size);
+			i++;
+			// console.log('>>', p1, p2, i);
+		} while (p1.x == p2.x && p1.y == p2.y);
+		// while (p1.x == p2.x && p1.y == p2.y && i <= 5) {
+		// p1.x = Math.floor((Math.abs(data.x - v.x * i) + (size / 2)) / size);
+		// p1.y = Math.floor((Math.abs(data.y - v.y * i) + (size / 2)) / size);
+		// i++;
+		// }
+		return p2;
 	}
-	return true;
+	return null;
+}
+
+function getSwitchPosition2(body1, body2) {
+	if (body1 && body2) {
+		var data1 = body1.GetUserData();
+		var vec = body1.GetLinearVelocity();
+		var data2 = body2.GetUserData();
+		var hs = size / 4;
+		var d1 = {
+			x : data1.x + size / 2,
+			y : data1.y + size / 2
+		}
+		// var d1 = {
+		// x : data1.x,
+		// y : data1.y
+		// }
+		console.log('hs:', hs);
+		var d2 = {
+			sx : data2.x + hs,
+			sy : data2.y + hs,
+			ex : data2.x + data2.w - hs,
+			ey : data2.y + data2.h - hs
+		}
+		console.log('d:', d1, d2);
+		var p2 = getFixPosition(body2);
+		if (d1.x > d2.ex || d1.x < d2.sx) {
+			p2.x += (vec.x > 0 ? -1 : 1);
+		}
+		if (d1.y > d2.ey || d1.y < d2.sy) {
+			p2.y += (vec.y > 0 ? -1 : 1);
+		}
+		// console.log(body1.GetPosition());
+		// console.log(body2.GetPosition());
+		return p2;
+	}
+	return null;
 }
