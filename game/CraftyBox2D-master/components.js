@@ -49,7 +49,7 @@ Crafty.c("hurt", {
 	}
 });
 
-Crafty.c("Square", {
+Crafty.c("SquareA", {
 	// This function will be called when the component is added to an entity
 	// So it sets up the things that both our entities had in common
 	init : function() {
@@ -62,64 +62,26 @@ Crafty.c("Square", {
 		this.z = -1;
 		this.origin("center");
 	},
-
 	events : {
 		// bind the given function to the blush event
 		"EnterFrame" : function() {
-			// if (this._parent) {
-			// this.z = this._parent.z - 1;
-			// }
-			// console.log('EnterFrame', this._parent, this.z);
-			this.rotation = this.rotation + 1;
+			// this.rotation = this.rotation + 1;
 		}
 	}
 });
 
-Crafty.c("Square1", {
+Crafty.c("Square", {
 	// This function will be called when the component is added to an entity
 	// So it sets up the things that both our entities had in common
 	init : function() {
 		// this.addComponent("2D, DOM, Canvas, Color");
 		this.addComponent("2D, Canvas, Color");
-		this.color("rgba(0, 255, 0, 0.2)");
-		this.z = -1;
+		this.color("rgba(255, 0, 0, 0.4)");
 		// this.css('border', '3px #cccccc solid;');
-		this.w = size;
-		this.h = size;
-		this.origin("center");
-	},
-	events : {
-		// bind the given function to the blush event
-		"EnterFrame" : function() {
-			// if (this._parent) {
-			// this.z = this._parent.z - 1;
-			// }
-			this.rotation = this.rotation + 2;
-		}
-	}
-});
-
-Crafty.c("Square2", {
-	// This function will be called when the component is added to an entity
-	// So it sets up the things that both our entities had in common
-	init : function() {
-		// this.addComponent("2D, DOM, Canvas, Color");
-		this.addComponent("2D, Canvas, Color");
-		this.color("rgba(0, 0, 255, 0.2)");
+		this.w = size + 4;
+		this.h = size + 4;
 		this.z = -1;
-		// this.css('border', '3px #cccccc solid;');
-		this.w = size;
-		this.h = size;
 		this.origin("center");
-	},
-	events : {
-		// bind the given function to the blush event
-		"EnterFrame" : function() {
-			// if (this._parent) {
-			// this.z = this._parent.z - 1;
-			// }
-			this.rotation = this.rotation + 3;
-		}
 	}
 });
 
@@ -127,15 +89,6 @@ Crafty.c("icon", {
 	init : function() {
 		this.addComponent("2D, Canvas, Color");
 	},
-
-	// events : {
-	// bind the given function to the blush event
-	// "EnterFrame" : function() {
-	// if (this._parent) {
-	// this.z = this._parent.z + 1;
-	// }
-	// }
-	// },
 
 	set : function(name) {
 		this.addComponent(name);
