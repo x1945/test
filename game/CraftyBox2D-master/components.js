@@ -253,3 +253,26 @@ Crafty.c("Hider", {
 		return this;
 	}
 });
+
+Crafty.c("Shadow", {
+	required : "2D, Canvas, Color",
+	show : function() {
+		var ctx = Crafty.canvasLayer.context;
+
+		// shadow
+		// ctx.save();
+		ctx.shadowColor = '#333';
+		ctx.shadowBlur = 5;
+		ctx.shadowOffsetX = 5;
+		ctx.shadowOffsetY = 5;
+		// ctx.fill();
+
+		// ctx.save();
+		// ctx.fillStyle = this.color;
+		// ctx.beginPath();
+		// ctx.arc(this.x + this.radius, this.y + this.radius, this.radius, 0,
+		// Math.PI * 2);
+		// ctx.closePath();
+		// ctx.fill();
+	}
+});

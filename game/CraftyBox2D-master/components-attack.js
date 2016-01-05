@@ -43,6 +43,48 @@ Crafty.c("attackHexagram", {
 	}
 });
 
+// 攻擊效果
+Crafty.c("attackFlame", {
+	init : function() {
+		this.addComponent("2D, Canvas, SpriteAnimation, Flame");
+		this.origin("center");
+		var s = 100;
+		var flame1Array = [ [ 6, 4 ], [ 6, 5 ], [ 6, 6 ] ];
+		this.reel("flame1", flame1Array.length * s, flame1Array);
+		var flame2Array = [ [ 7, 4 ], [ 7, 5 ], [ 7, 6 ] ];
+		this.reel("flame2", flame2Array.length * s, flame2Array);
+		var flame3Array = [ [ 8, 4 ], [ 8, 5 ], [ 8, 6 ] ];
+		this.reel("flame3", flame3Array.length * s, flame3Array);
+		var flame4Array = [ [ 9, 4 ], [ 10, 4 ], [ 11, 4 ] ];
+		this.reel("flame4", flame4Array.length * s, flame4Array);
+		var flame5Array = [ [ 9, 5 ], [ 10, 5 ], [ 11, 5 ] ];
+		this.reel("flame5", flame5Array.length * s, flame5Array);
+	},
+	play : function(name) {
+		this.animate(name, -1);
+		return this;
+	},
+	v : {
+		x : 0,
+		y : 0
+	},
+	events : {
+		"EnterFrame" : function() {
+			// this.body.rotation++;
+			// this.body.ApplyImpulse(new b2Vec2(0, -2 / PTM_RATIO), this.body
+			// .GetWorldCenter());
+			this.body.ApplyImpulse(new b2Vec2(this.v.x / PTM_RATIO, this.v.y
+					/ PTM_RATIO), this.body.GetWorldCenter());
+
+			// 飛出邊界
+			if (this.x > 320 || this.x < -20 || this.y > 420 || this.y < -20) {
+				world.DestroyBody(this.body);
+				this.destroy();
+			}
+		}
+	}
+});
+
 // main
 Crafty.c("attackAnimation", {
 	init : function() {
@@ -149,6 +191,55 @@ Crafty.c("exeIce32", {
 	init : function() {
 		this.addComponent("attackAnimation");
 		this.setAnimation("Ice3", [ [ 3, 1 ], [ 4, 1 ], [ 0, 2 ] ]);
+		this.playAnimation();
+	}
+});
+
+Crafty.c("exeHeal1", {
+	init : function() {
+		this.addComponent("attackAnimation");
+		this.setAnimation("Heal1", [ [ 3, 3 ], [ 4, 3 ], [ 0, 4 ], [ 1, 4 ],
+				[ 2, 4 ], [ 3, 4 ], [ 4, 4 ], [ 0, 5 ], [ 1, 5 ], [ 2, 5 ],
+				[ 3, 5 ] ]);
+		this.playAnimation();
+	}
+});
+
+Crafty.c("exeHeal2", {
+	init : function() {
+		this.addComponent("attackAnimation");
+		this.setAnimation("Heal2", [ [ 4, 0 ], [ 0, 1 ], [ 1, 1 ], [ 2, 1 ] ]);
+		this.playAnimation();
+	}
+});
+
+Crafty.c("exeHeal4", {
+	init : function() {
+		this.addComponent("attackAnimation");
+		this.setAnimation("Heal4", [ [ 0, 0 ], [ 1, 0 ], [ 2, 0 ], [ 3, 0 ],
+				[ 4, 0 ], [ 0, 1 ], [ 1, 1 ], [ 2, 1 ], [ 3, 1 ], [ 4, 1 ],
+				[ 0, 2 ], [ 1, 2 ], [ 2, 2 ], [ 3, 2 ], [ 4, 2 ], [ 0, 3 ],
+				[ 1, 3 ], [ 2, 3 ], [ 3, 3 ], [ 4, 3 ], [ 0, 4 ], [ 1, 4 ] ]);
+		this.playAnimation();
+	}
+});
+
+Crafty.c("exeHeal6", {
+	init : function() {
+		this.addComponent("attackAnimation");
+		this.setAnimation("Heal6", [ [ 0, 0 ], [ 1, 0 ], [ 2, 0 ], [ 3, 0 ],
+				[ 4, 0 ], [ 0, 1 ], [ 1, 1 ], [ 2, 1 ], [ 3, 1 ], [ 4, 1 ] ]);
+		this.playAnimation();
+	}
+});
+
+Crafty.c("exeHeal62", {
+	init : function() {
+		this.addComponent("attackAnimation");
+		this.setAnimation("Heal6", [ [ 0, 2 ], [ 1, 2 ], [ 2, 2 ], [ 3, 2 ],
+				[ 4, 2 ], [ 0, 3 ], [ 1, 3 ], [ 2, 3 ], [ 3, 3 ], [ 4, 3 ],
+				[ 0, 4 ], [ 1, 4 ], [ 2, 4 ], [ 3, 4 ], [ 4, 4 ], [ 0, 5 ],
+				[ 1, 5 ], [ 2, 5 ], [ 3, 5 ], [ 4, 5 ] ]);
 		this.playAnimation();
 	}
 });
