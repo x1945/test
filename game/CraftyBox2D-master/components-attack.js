@@ -243,3 +243,12 @@ Crafty.c("exeHeal62", {
 		this.playAnimation();
 	}
 });
+
+Crafty.c("exeState6", {
+	init : function() {
+		this.addComponent("attackAnimation");
+		this.setAnimation("State6", [ [ 0, 0 ], [ 1, 0 ], [ 2, 0 ], [ 3, 0 ],
+				[ 4, 0 ], [ 0, 1 ], [ 1, 1 ], [ 2, 1 ] ]);
+		this.playAnimation();
+	}
+});

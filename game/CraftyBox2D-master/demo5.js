@@ -1,4 +1,4 @@
-var size = 50;
+var size = 64;
 var zIndex = 8;
 var world, PTM_RATIO = 32, w = size * 6, h = size * 8, hw = w / 2, hh = h / 2, mouseJoint, ctx = this, isMouseDown = false, mouseX, mouseY, mousePVec, selectedBody, selectedFixture;
 var objects = [];
@@ -67,6 +67,9 @@ gameInit = function() {
 	});
 	Crafty.sprite(64, "icon/james-bond-aperture.png", {
 		fairy : [ 0, 0 ]
+	});
+	Crafty.sprite(64, "icon/electric.png", {
+		electric : [ 0, 0 ]
 	});
 
 	// characteristic
@@ -162,6 +165,10 @@ gameInit = function() {
 	Crafty.sprite(192, "Animations/Heal6.png", {
 		Heal6 : [ 0, 0 ]
 	});
+	// Heal6
+	Crafty.sprite(192, "Animations/State6.png", {
+		State6 : [ 0, 0 ]
+	});
 
 	Crafty.scene("loading", function() {
 		Crafty.load({
@@ -171,15 +178,15 @@ gameInit = function() {
 					"img/1047.png", "img/1048.png", "img/f181.png",
 					"img/IconSet.png", "icon/spinning-sword.png",
 					"icon/comet-spark.png", "icon/checked-shield.png",
-					"icon/james-bond-aperture.png", "img/Hexagram.png",
-					"img/Flame.png", "img/DarkSpace1.png",
+					"icon/james-bond-aperture.png", "icon/electric.png",
+					"img/Hexagram.png", "img/Flame.png", "img/DarkSpace1.png",
 					"Animations/Attack1.png", "Animations/Attack2.png",
 					"Animations/Attack3.png", "Animations/Attack4.png",
 					"Animations/Attack5.png", "Animations/Darkness1.png",
 					"Animations/Meteor.png", "Animations/Ice3.png",
 					"Animations/Balloon.png", "Animations/Heal1.png",
 					"Animations/Heal2.png", "Animations/Heal4.png",
-					"Animations/Heal6.png" ],
+					"Animations/Heal6.png", "Animations/State6.png" ],
 			audio : {
 				"theme" : [ "audio/theme2.mp3" ],
 				"Explosion" : [ "audio/Explosion1.ogg" ],
@@ -188,7 +195,7 @@ gameInit = function() {
 				"Heal3" : [ "audio/Heal3.ogg" ]
 			}
 		}, function() {
-			Crafty.audio.play("theme", -1, 0.3);
+			// Crafty.audio.play("theme", -1, 0.3);
 			// '#FFFFFF url(img/DarkSpace1.png) no-repeat center center';
 			// var bbb = 'url(img/DarkSpace1.png) no-repeat';
 			// Crafty.background(bbb);
@@ -229,8 +236,9 @@ generateWorld = function() {
 		density : 1.0,
 		friction : 10,
 		restitution : 0,
-		shape : [ [ 0, 0 ], [ w, 0 ] ]
-	// shape : [ [ 0, -thickness ], [ w, -thickness ], [ w, 0 ], [ 0, 0 ] ]
+		// shape : [ [ 0, 0 ], [ w, 0 ] ]
+		shape : [ [ 0, size * 4 ], [ w, size * 4 ] ]
+	// shape : [ [ 0, 0 ], [ w, 0 ], [ w, size * 4 ], [ 0, size * 4 ] ]
 	});
 	walls.addFixture({
 		bodyType : 'static',
@@ -320,7 +328,7 @@ var finalMovePoint = {};
 // 建置感應區
 var createSense = function() {
 	for (var x = 0; x < 6; x++) {
-		for (var y = 0; y < 8; y++) {
+		for (var y = 7; y < 8; y++) {
 			if (objects[x][y] == null) {
 				var role = "2D, Canvas, Color, Box2D, Sense";
 				var r = Crafty.e(role).origin("center");
@@ -329,6 +337,7 @@ var createSense = function() {
 						x : x,
 						y : y
 					},
+					actionType : 'test',
 					x : x * size,
 					y : y * size, // 0
 					h : size,
@@ -408,8 +417,8 @@ var genterateSide = function() {
 			r.attr({
 				x : x * size,
 				y : y * size, // 0
-				h : 50,
-				w : 50
+				h : size,
+				w : size
 			});
 		}
 	}
@@ -420,15 +429,15 @@ var genterateSide = function() {
 		r.attr({
 			x : x * size,
 			y : 7 * size, // 0
-			h : 50,
-			w : 50
+			h : size,
+			w : size
 		});
 	}
 }
 
 var genterateControl = function() {
 	console.log('genterateControl');
-	var icons = [ 'knife', 'fairy', 'shield' ];
+	var icons = [ 'knife', 'electric', 'shield' ];
 	for (var i = 0; i < 6; i++) {
 		for (var j = 0; j < 3; j++) {
 			var role = "2D, Canvas, Mouse, Box2D, since, Sense, dead, "
@@ -495,20 +504,56 @@ var genterateChars = function() {
 			w : size
 		});
 
+		var hp = Crafty.e('blood').set({
+			type : 'HP',
+			x : x * size + 5,
+			y : y * size + size - 15,
+			h : 4,
+			w : size - 10
+		});
+		var sp = Crafty.e('blood').set({
+			type : 'SP',
+			x : x * size + 5,
+			y : y * size + size - 10,
+			h : 4,
+			w : size - 10
+		});
+		r.attach(hp);
+		hp.setMaxValue(9999);
+		hp.setValue(Crafty.math.randomInt(0, 9999));
+		r.attach(sp);
+		sp.setMaxValue(999);
+		sp.setValue(Crafty.math.randomInt(0, 999));
+
 		// 我方
 		hero.push(fallingElement);
 	}
 }
 
+var bossId = '';
 genterateBoss = function() {
 	var role = "2D, Canvas, boss";
 	var r = Crafty.e(role).origin("center");
 	r.attr({
 		x : 0,
 		y : 0,
-		h : 400,
-		w : 300
+		h : 512,
+		w : 384
 	});
+	var hp = Crafty.e('blood').set({
+		type : 'HP',
+		x : 10,
+		y : size * 3 - 10,
+		h : 4,
+		w : size * 6 - 20
+	});
+	r.attach(hp);
+	r.hp = hp;
+	hp.setMaxValue(999999);
+	hp.setValue(999999);
+	// r.destroy();
+
+	bossId = r.getId();
 }
 
 //
@@ -687,20 +732,26 @@ function doSomething() {
 			var hexagramIndex = Crafty.math.randomInt(0, 4);
 			var attack = Crafty.e(HexagramName2[hexagramIndex]);
 			attack.attr({
-				x : 50,
+				x : size * 1.5,
 				y : 0,
 				z : 100
 			});
 
 			// 傷害
 			var number = Crafty.math.randomInt(1000, 9999);
-			var dx = 140;
-			var dy = 40 + 12;
+			var dx = size * 3;
+			var dy = size;
 			var dz = 101;
 			Crafty.e("hurt").display(number, '#ff0000', dx, dy, dz);
 			Crafty.audio.play("Explosion");
+
+			// console.log('boss:', bossId, Crafty(bossId));
+
+			var bossHp = Crafty(bossId).hp;
+			var n = bossHp.getValue() - number;
+			bossHp.setValue(bossHp.getValue() - number);
 			break;
-		case 'fairy':
+		case 'electric':
 			// var h = hero[ax];
 			// var attack = Crafty.e('exeHeal2');
 			// attack.attr({
@@ -723,10 +774,10 @@ function doSomething() {
 			break;
 		case 'shield':
 			var h = hero[ax];
-			var attack = Crafty.e('exeHeal4');
+			var attack = Crafty.e('exeState6');
 			attack.attr({
 				x : h.x - size / 2,
-				y : h.y - size / 2,
+				y : h.y - 10,
 				z : 100,
 				w : size * 2,
 				h : size * 2
@@ -763,199 +814,204 @@ function doSomething() {
 			});
 			frame.body.SetLinearVelocity(new b2Vec2(0, -1));
 			break;
-		break;
-	}
+		}
 
-	object.toDead();
-	if (++ay >= 7) {
-		ay = 4;
-		ax++;
-	}
-	if (ax >= 6) {
-		isMouseMove = false;
-		ax = 0;
-		ay = 4;
-		// 建置控制區
-		Crafty.e("Delay").delay(genterateControl, 1000, 0);
-	}
+		if (object.actionType != 'test')
+			object.toDead();
 
-	// console.log('1');
-}
+		if (++ay >= 7) {
+			ay = 4;
+			ax++;
+		}
+		if (ax >= 6) {
+			isMouseMove = false;
+			ax = 0;
+			ay = 4;
+			// 建置控制區
+			Crafty.e("Delay").delay(genterateControl, 1000, 0);
+		}
+
+		// console.log('1');
+	}
 }
 
 // 設定修正後之位置
 function setFixPosition(body) {
-if (body) {
-	var data = body.GetUserData();
-	var p = getFixPosition(body);
-	setPosition(body, p);
-}
+	if (body) {
+		var data = body.GetUserData();
+		var p = getFixPosition(body);
+		setPosition(body, p);
+	}
 }
 
 // 取得修正後之位置
 function getFixPosition(body) {
-if (body) {
-	var data = body.GetUserData();
-	// console.log('userData:', data);
-	// 取絕對值再取中心點,再取臨界值
-	var x = Math.floor((Math.abs(data.x) + (size / 2)) / size);
-	var y = Math.floor((Math.abs(data.y) + (size / 2)) / size);
-	return {
-		x : x,
-		y : y
+	if (body) {
+		var data = body.GetUserData();
+		// console.log('userData:', data);
+		// 取絕對值再取中心點,再取臨界值
+		var x = Math.floor((Math.abs(data.x) + (size / 2)) / size);
+		var y = Math.floor((Math.abs(data.y) + (size / 2)) / size);
+		return {
+			x : x,
+			y : y
+		}
 	}
-}
-return null;
+	return null;
 }
 
 // 設定位置
 function setPosition(body, p) {
-if (body && p) {
-	body.SetPosition({
-		x : p.x * size / PTM_RATIO,
-		y : p.y * size / PTM_RATIO
-	});
-}
+	if (body && p) {
+		body.SetPosition({
+			x : p.x * size / PTM_RATIO,
+			y : p.y * size / PTM_RATIO
+		});
+	}
 }
 
 var vec4 = [ new b2Vec2(30, 0), new b2Vec2(-30, 0), new b2Vec2(0, 30),
-	new b2Vec2(0, -30) ];
+		new b2Vec2(0, -30) ];
 var vec41 = [ new b2Vec2(20, -20), new b2Vec2(-20, -20), new b2Vec2(20, 20),
-	new b2Vec2(-20, 20) ];
+		new b2Vec2(-20, 20) ];
 var vec8 = [ new b2Vec2(20, 0), new b2Vec2(-20, 0), new b2Vec2(0, 20),
-	new b2Vec2(0, -20), new b2Vec2(20, -20), new b2Vec2(-20, -20),
-	new b2Vec2(20, 20), new b2Vec2(-20, 20) ];
+		new b2Vec2(0, -20), new b2Vec2(20, -20), new b2Vec2(-20, -20),
+		new b2Vec2(20, 20), new b2Vec2(-20, 20) ];
 
 var HexagramName = [ 'ice', 'wind', 'fire', 'light', 'dark' ];
 var HexagramName2 = [ 'exeAttack3', 'exeAttack5', 'exeAttack2', 'exeAttack4',
-	'exeDarkness1' ];
+		'exeDarkness1' ];
 var attackCreate = function(p) {
-var hexagramIndex = Crafty.math.randomInt(0, 4);
+	var hexagramIndex = Crafty.math.randomInt(0, 4);
 
-for (var i = 0; i <= 3; i++) {
-	// var attack = Crafty.e('attackHexagram').play('dark');
-	var attack = Crafty.e('attackHexagram').play(HexagramName[hexagramIndex]);
-	attack.addComponent("Box2D");
-	attack.addComponent("Collision");
-	attack.attr({
-		attackIndex : hexagramIndex,
-		p : Crafty.clone(p),
-		x : p.x * size + 8,
-		y : p.y * size + 8,
-		// h : size,
-		// w : size,
-		r : 0.51
-	}).box2d({
-		isSensor : true, // 傳感器(default:true, 碰撞時反饋
-		density : 0, // 1.0 質量[旋轉](設置密度密度為0，即表示該剛體是靜止不動的)
-		friction : 0, // 2 表面摩擦力
-		restitution : 0, // 0.2 表面張力[彈力](這個值越大，剛體越硬) 彈力,
-		bodyType : 'dynamic', // dynamic
-		shape : 'circle'
-	});
-	// .onContact("enemy", ContactEnemy);
-
-	// console.log('boxAttack:', boxAttack);
-	// var attackBody = boxAttack.GetBody();
-	// var attackBody = attack.body;
-	// attack.body.SetLinearVelocity(new b2Vec2(50, 0));
-	// console.log(attack.body);
-	attack.body.SetLinearVelocity(vec4[i]);
-	// attack.body.SetLinearVelocity(vec8[i]);
-	// attack.body.ApplyForce(vec4[i]);
-	// attack.body.SetLinearVelocity(vec41[i]);
-
-	attack.checkHits('enemy').bind("HitOn", function(hitData) {
-		// console.log('HitOn >>>>:', hitData);
-		var block = hitData[0].obj
-		// var userData = this.body.GetUserData();
-		var userData = block.body.GetUserData();
-		// var attack = Crafty.e("exeDarkness1");
-		// console.log(HexagramName2[this.attackIndex]);
-		var attack = Crafty.e(HexagramName2[this.attackIndex]);
+	for (var i = 0; i <= 3; i++) {
+		// var attack = Crafty.e('attackHexagram').play('dark');
+		var attack = Crafty.e('attackHexagram').play(
+				HexagramName[hexagramIndex]);
+		attack.addComponent("Box2D");
+		attack.addComponent("Collision");
 		attack.attr({
-			x : userData.x + size / 2 - attack.w / 2,
-			y : userData.y + size / 2 - attack.h / 2,
-			z : userData.z + 100
+			attackIndex : hexagramIndex,
+			p : Crafty.clone(p),
+			x : p.x * size + 8,
+			y : p.y * size + 8,
+			// h : size,
+			// w : size,
+			r : 0.51
+		}).box2d({
+			isSensor : true, // 傳感器(default:true, 碰撞時反饋
+			density : 0, // 1.0 質量[旋轉](設置密度密度為0，即表示該剛體是靜止不動的)
+			friction : 0, // 2 表面摩擦力
+			restitution : 0, // 0.2 表面張力[彈力](這個值越大，剛體越硬) 彈力,
+			bodyType : 'dynamic', // dynamic
+			shape : 'circle'
 		});
+		// .onContact("enemy", ContactEnemy);
 
-		// 傷害
-		var number = Crafty.math.randomInt(1000, 9999);
-		var dx = userData.x + 12;
-		var dy = userData.y + 12;
-		var dz = userData.z + 101;
-		block.hurt = Crafty.e("hurt").display(number, '#ff0000', dx, dy, dz);
+		// console.log('boxAttack:', boxAttack);
+		// var attackBody = boxAttack.GetBody();
+		// var attackBody = attack.body;
+		// attack.body.SetLinearVelocity(new b2Vec2(50, 0));
+		// console.log(attack.body);
+		attack.body.SetLinearVelocity(vec4[i]);
+		// attack.body.SetLinearVelocity(vec8[i]);
+		// attack.body.ApplyForce(vec4[i]);
+		// attack.body.SetLinearVelocity(vec41[i]);
 
-		// status
-		// if (!block.has("status1")) {
-		// var ss = "2D, Canvas, SpriteAnimation, status1"
-		// var status = Crafty.e(ss);
-		// status.attr({
-		// x : userData.x + 30,
-		// y : userData.y - 32,
-		// z : userData.z + 1
-		// });
-		// status.reel("statusAction", 1000, [ [ 1, i ], [ 2, i ],
-		// [ 3, i ], [ 4, i ], [ 5, i ], [ 6, i ],
-		// [ 7, i ] ]);
-		// status.animate("statusAction", -1);
-		// block.attach(status);
-		// }
+		attack.checkHits('enemy').bind(
+				"HitOn",
+				function(hitData) {
+					// console.log('HitOn >>>>:', hitData);
+					var block = hitData[0].obj
+					// var userData = this.body.GetUserData();
+					var userData = block.body.GetUserData();
+					// var attack = Crafty.e("exeDarkness1");
+					// console.log(HexagramName2[this.attackIndex]);
+					var attack = Crafty.e(HexagramName2[this.attackIndex]);
+					attack.attr({
+						x : userData.x + size / 2 - attack.w / 2,
+						y : userData.y + size / 2 - attack.h / 2,
+						z : userData.z + 100
+					});
 
-		// this.resetHitChecks('piece');
-	})
-}
+					// 傷害
+					var number = Crafty.math.randomInt(1000, 9999);
+					var dx = userData.x + 12;
+					var dy = userData.y + 12;
+					var dz = userData.z + 101;
+					block.hurt = Crafty.e("hurt").display(number, '#ff0000',
+							dx, dy, dz);
 
-// attackBody.ApplyImpulse(new b2Vec2(10 / PTM_RATIO, 0), boxAttack.body
-// .GetWorldCenter());
+					// status
+					// if (!block.has("status1")) {
+					// var ss = "2D, Canvas, SpriteAnimation, status1"
+					// var status = Crafty.e(ss);
+					// status.attr({
+					// x : userData.x + 30,
+					// y : userData.y - 32,
+					// z : userData.z + 1
+					// });
+					// status.reel("statusAction", 1000, [ [ 1, i ], [ 2, i ],
+					// [ 3, i ], [ 4, i ], [ 5, i ], [ 6, i ],
+					// [ 7, i ] ]);
+					// status.animate("statusAction", -1);
+					// block.attach(status);
+					// }
+
+					// this.resetHitChecks('piece');
+				})
+	}
+
+	// attackBody.ApplyImpulse(new b2Vec2(10 / PTM_RATIO, 0), boxAttack.body
+	// .GetWorldCenter());
 }
 
 var ContactEnemy = function(data) {
-// console.log('Enemy>>>>:');
-var block = data[0].obj;
+	// console.log('Enemy>>>>:');
+	var block = data[0].obj;
 
-var bName = block.body.GetUserData()._entityName;
-// console.log('Enemy >>>>:', bName);
-// var n = Crafty.math.randomInt(1, 5);
-// var attack = Crafty.e("exeAttack" + n);
-// var attack = Crafty.e("exeMeteor");
-// var userData = block.body.GetUserData();
-var userData = this.body.GetUserData();
-var attack = Crafty.e("exeDarkness1");
-attack.attr({
-	x : userData.x + size / 2 - attack.w / 2,
-	y : userData.y + size / 2 - attack.h / 2,
-	z : userData.z + 1
-});
-// Crafty.audio.play("Explosion");
+	var bName = block.body.GetUserData()._entityName;
+	// console.log('Enemy >>>>:', bName);
+	// var n = Crafty.math.randomInt(1, 5);
+	// var attack = Crafty.e("exeAttack" + n);
+	// var attack = Crafty.e("exeMeteor");
+	// var userData = block.body.GetUserData();
+	var userData = this.body.GetUserData();
+	var attack = Crafty.e("exeDarkness1");
+	attack.attr({
+		x : userData.x + size / 2 - attack.w / 2,
+		y : userData.y + size / 2 - attack.h / 2,
+		z : userData.z + 1
+	});
+	// Crafty.audio.play("Explosion");
 };
 
 /**
  * 測試區
  */
 var testCreate = function() {
-Crafty.e('attackHexagram').attr({
-	x : 50,
-	y : 15
-}).play('ice');
+	Crafty.e('attackHexagram').attr({
+		x : 50,
+		y : 15
+	}).play('ice');
 
-Crafty.e('attackHexagram').attr({
-	x : 100,
-	y : 15
-}).play('fire');
+	Crafty.e('attackHexagram').attr({
+		x : 100,
+		y : 15
+	}).play('fire');
 
-Crafty.e('attackHexagram').attr({
-	x : 150,
-	y : 15
-}).play('wind');
+	Crafty.e('attackHexagram').attr({
+		x : 150,
+		y : 15
+	}).play('wind');
 
-Crafty.e('attackHexagram').attr({
-	x : 200,
-	y : 15
-}).play('light');
+	Crafty.e('attackHexagram').attr({
+		x : 200,
+		y : 15
+	}).play('light');
 
-Crafty.e('attackHexagram').attr({
-	x : 250,
-	y : 15
-}).play('dark');
+	Crafty.e('attackHexagram').attr({
+		x : 250,
+		y : 15
+	}).play('dark');
 }

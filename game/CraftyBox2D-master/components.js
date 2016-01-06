@@ -276,3 +276,71 @@ Crafty.c("Shadow", {
 		// ctx.fill();
 	}
 });
+
+Crafty.c("blood", {
+	init : function() {
+		this.addComponent("2D, Canvas, Color");
+	},
+	detail : {},
+	value : 0,
+	maxValue : 0,
+	set : function(option) {
+		option = $.extend({
+			type : 'HP',
+			x : 0,
+			y : 0,
+			w : 0,
+			h : 5
+		}, option);
+
+		this.color('rgba(0, 0, 0, 0.3)');
+		this.attr({
+			x : option.x,
+			y : option.y,
+			w : option.w,
+			h : option.h
+		});
+
+		var shadow = Crafty.e("2D, Canvas, Color");
+		shadow.attr({
+			x : option.x + 1,
+			y : option.y + 1,
+			maxW : option.w - 2,
+			h : option.h - 2
+		});
+		switch (option.type) {
+		case 'HP':
+			shadow.color('rgba(255, 0, 0, 0.6)');
+			break;
+		case 'SP':
+			shadow.color('rgba(0, 0, 255, 0.6)');
+			break;
+		}
+		this.detail = shadow;
+		this.attach(shadow);
+		return this;
+	},
+	getValue : function() {
+		return this.value;
+	},
+	setValue : function(v) {
+		this.value = v || 0;
+		this.planning();
+	},
+	setMaxValue : function(v) {
+		this.maxValue = v || 0;
+		this.planning();
+	},
+	planning : function() {
+		if (this.value > this.maxValue)
+			this.value = this.maxValue;
+		if (this.maxValue != 0 && this.detail) {
+			this.detail.w = this.detail.maxW
+					* ((this.value || 0) / this.maxValue);
+		}
+	},
+	events : {
+	// "EnterFrame" : function() {
+	// }
+	}
+});
