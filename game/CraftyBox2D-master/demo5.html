@@ -22,6 +22,7 @@
 <!-- 'CanvasRenderingContext2D.webkitImageSmoothingEnabled' is deprecated. Please use 'CanvasRenderingContext2D.imageSmoothingEnabled' instead. -->
 <script src="../js/jquery-2.1.4.min.js"></script>
 <script src="../js/crafty.js"></script>
+<script src="../js/crafty-progressBar.js"></script>
 <script src="box2d.js"></script>
 <script src="components.js"></script>
 <script src="components-attack.js"></script>
@@ -29,6 +30,11 @@
 <script src="demo5.js"></script>
 
 <style>
+body {
+	font-family: "微軟正黑體", Lucida Sans Unicode, Verdana, Geneva,
+		sans-serif !important;
+}
+
 .grid {
 	/* 	background: -webkit-linear-gradient(top, transparent 63px, black 64px), */
 	/* 		-webkit-linear-gradient(left, transparent 63px, black 64px); */
@@ -63,5 +69,6 @@
 	<div class="bg">
 		<div id="game" class="grid"></div>
 	</div>
+	<div id="fpsDisplay">xxxxxx</div>
 </body>
 </html>

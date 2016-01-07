@@ -14,6 +14,37 @@ Crafty.c("Border", {
 
 Crafty.c("hurt", {
 	init : function() {
+		// this.addComponent("2D, Canvas, Text");
+		// this.addComponent("2D, Canvas, Tween, Text");
+		this.addComponent("2D, DOM, Tween, Text");
+	},
+	display : function(text, color, x, y, z) {
+		this.origin("center");
+		this.text(text);
+		// this.color = color;
+		this.textColor(color);
+		this.textFont({
+			size : '30px'
+		});
+		// this._strength = 0.5;
+		this.attr({
+			x : x,
+			y : y,
+			z : z,
+			alpha : 0.3,
+		}).tween({
+			y : y - 60,
+			alpha : 1.0
+		}, 1000).timeout(function() {
+			this.destroy();
+			this.isDestory = true;
+		}, 1000);
+		return this;
+	}
+});
+
+Crafty.c("hurtX", {
+	init : function() {
 		this.addComponent("2D, Canvas, Text");
 	},
 	count : 0,

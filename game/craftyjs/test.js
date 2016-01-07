@@ -29,12 +29,12 @@ Crafty.c("piece", {
 
 			// console.log('x:', this.x, 'y:', this.y);
 
-//			if (since) {
-//				this.attr({
-//					x : since.x,
-//					y : since.y
-//				});
-//			}
+			// if (since) {
+			// this.attr({
+			// x : since.x,
+			// y : since.y
+			// });
+			// }
 
 			// if (wall) {
 			// var hit = false;
@@ -144,12 +144,48 @@ Crafty.e('Floor, 2D, Canvas, Color, Collision').attr({
 	// wall = null;
 });
 
-Crafty.e('piece, 2D, Canvas, Color, Collision').attr({
-	x : 0,
-	y : 0,
+Crafty.e('piece, 2D, Canvas, Color, Collision, Tween').attr({
+	x : 50,
+	y : 50,
 	w : 50,
 	h : 50
-}).color('#F00');
+}).color('#F00').tween({
+	rotation : 180
+}, 2000, "linear");
+
+Crafty.e("2D, Canvas, Tween, Text").text("TEST").attr({
+	x : 0,
+	y : 0,
+	w : 100,
+	h : 100,
+	size : 10,
+	alpha : 0.0,
+	rotation : 0
+}).tween({
+	x : 200,
+	y : 180,
+	w : 200,
+	size : 20,
+	h : 200,
+	alpha : 1.0,
+	rotation : 360
+}, 2000, "smoothStep").timeout(function() {
+	// this.destroy();
+}, 2000);
+
+Crafty.e("2D, Canvas, Tween, Text").text("TEST").attr({
+	x : 0,
+	y : 0,
+	alpha : 0.0,
+	rotation : 0
+}).tween({
+	x : 200,
+	y : 200,
+	alpha : 1.0,
+	rotation : 360
+}, 2000, "easeInQuad").timeout(function() {
+	// this.destroy();
+}, 2000);
 
 // Crafty.e('piece, 2D, Canvas, Color, Collision').attr({
 // x : 0,

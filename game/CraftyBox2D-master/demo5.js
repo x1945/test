@@ -171,6 +171,32 @@ gameInit = function() {
 	});
 
 	Crafty.scene("loading", function() {
+		// Crafty.background("#000000");
+		Crafty.e("2D, DOM, Text").attr({
+			x : hw - 50,
+			y : hh - 10,
+			w : 100,
+			h : 20
+		}).text("Loading").css({
+			"text-align" : "center",
+			"color" : "#000000"
+		});
+
+		Crafty.e("2D, DOM, ProgressBar").attr({
+			x : hw - 50,
+			y : hh + 10,
+			w : 100,
+			h : 20,
+			z : 100
+		})
+		// progressBar(Number maxValue, Boolean flipDirection, String
+		// emptyColor, String filledColor)
+		.progressBar(100, false, "blue", "green").bind("LOADING_PROGRESS",
+				function(percent) {
+					// updateBarProgress(Number currentValue)
+					this.updateBarProgress(percent);
+				});
+
 		Crafty.load({
 			images : [ "img/Inside_A4.png", "img/Outside_A2.png",
 					"img/822.png", "img/912.png", "img/945.png",
@@ -202,16 +228,9 @@ gameInit = function() {
 			console.log('load finish');
 			console.log('FPS:', Crafty.timer.FPS());
 			Crafty.scene("main");
-		});
-		// Crafty.background("#000000");
-		Crafty.e("2D, DOM, Text").attr({
-			w : 100,
-			h : 20,
-			x : hw - 50,
-			y : hh - 10
-		}).text("Loading").css({
-			"text-align" : "center",
-			"color" : "#000000"
+		}, function(e) { // on progress
+			Crafty.trigger("LOADING_PROGRESS", e.percent);
+		}, function(e) { // on error
 		});
 	});
 	Crafty.scene("loading");
@@ -223,6 +242,29 @@ gameInit = function() {
 }
 
 generateWorld = function() {
+	var e = Crafty.e("2D, Tween, Text").text("TEST");
+	// Use built-in easing functions
+	e.tween({
+		x : 100
+	}, 1000, "smoothStep");
+	e.tween({
+		y : 100
+	}, 1000, "easeInQuad");
+	// Define a custom easing function: 2t^2 - t
+	e.tween({
+		w : 0
+	}, 1000, function(t) {
+		return 2 * t * t - t;
+	});
+
+	Crafty.e("2D, Tween, Text").text("TEST").attr({
+		x : 0,
+		y : 0,
+		rotation : 0
+	}).tween({
+		rotation : 180
+	}, 2000, "smootherStep");
+
 	var thickness = 50;
 	// 邊牆
 	// density : 0, // 1.0 質量[旋轉](設置密度密度為0，即表示該剛體是靜止不動的)
@@ -739,7 +781,7 @@ function doSomething() {
 
 			// 傷害
 			var number = Crafty.math.randomInt(1000, 9999);
-			var dx = size * 3;
+			var dx = size * 2.5;
 			var dy = size;
 			var dz = 101;
 			Crafty.e("hurt").display(number, '#ff0000', dx, dy, dz);
@@ -1015,3 +1057,12 @@ var testCreate = function() {
 		y : 15
 	}).play('dark');
 }
+
+var fps = 0;
+setInterval(function() {
+	if (fps != Crafty.timer.FPS()) {
+		fps = Crafty.timer.FPS();
+		console.log('FPS change:', fps);
+		document.getElementById('fpsDisplay').innerHTML = fps;
+	}
+}, 1000);

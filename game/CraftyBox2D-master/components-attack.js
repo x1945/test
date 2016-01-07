@@ -87,27 +87,31 @@ Crafty.c("attackFlame", {
 
 // main
 Crafty.c("attackAnimation", {
+	exeSecond : 1000,
 	init : function() {
 		this.addComponent("2D, Canvas, SpriteAnimation");
 		this.origin("center");
 	},
 	setAnimation : function(componentName, animationArray) {
 		this.addComponent(componentName);
-		this.reel("attackAction", animationArray.length * attackStepSecond,
-				animationArray);
+		this.exeSecond = animationArray.length * attackStepSecond;
+		this.reel("attackAction", this.exeSecond, animationArray);
 		return this;
 	},
 	playAnimation : function() {
 		this.animate("attackAction", 1);
+		this.timeout(function() {
+			this.destroy();
+		}, this.exeSecond);
 		return this;
-	},
-	events : {
-		"EnterFrame" : function() {
-			if (!this.isPlaying('attackAction')) {
-				this.destroy();
-			}
-		}
 	}
+// events : {
+// "EnterFrame" : function() {
+// if (!this.isPlaying('attackAction')) {
+// this.destroy();
+// }
+// }
+// }
 });
 
 Crafty.c("exeAttack1", {
