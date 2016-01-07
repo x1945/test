@@ -31,10 +31,10 @@ Crafty.c("hurt", {
 			x : x,
 			y : y,
 			z : z,
-			alpha : 0.3,
+			alpha : 1.0,
 		}).tween({
 			y : y - 60,
-			alpha : 1.0
+			alpha : 0.3
 		}, 1000).timeout(function() {
 			this.destroy();
 			this.isDestory = true;
