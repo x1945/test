@@ -60,3 +60,51 @@ Crafty.c("timing", {
 		return this;
 	}
 });
+
+Crafty.c("locking", {
+	init : function() {
+		// this.addComponent("2D, DOM, Tween");
+		this.addComponent("2D, DOM, Tween");
+		// this.addComponent("2D, DOM, Canvas, Color, Tween");
+	},
+	exe : function(option) {
+		console.log('option:', option);
+		this.attr({
+			x : option.x * gv.size - gv.size / 2,
+			y : option.y * gv.size - gv.size / 2,
+			w : gv.size * 2,
+			h : (option.h * gv.size) + gv.size
+		}).css({
+			'border' : '1px solid ' + (option.color || 'red'),
+		});
+		this.tween({
+			x : option.x * gv.size,
+			y : option.y * gv.size,
+			w : gv.size,
+			h : option.h * gv.size,
+		// rotation : 90
+		}, option.second || 200).timeout(function() {
+			this.destroy();
+			if (option.callback) {
+				option.callback();
+			}
+		}, option.second || 1000);
+
+		this.origin("center");
+		return this;
+	}
+// ,events : {
+// "EnterFrame" : function() {
+// if (this.x < gv.size) {
+// this.rotation = (this.rotation + 10) % 360;
+// this.x += 3;
+// this.y += 3;
+// this.h -= 6;
+// this.w -= 6;
+// this.origin("center");
+// } else {
+// this.destroy();
+// }
+// }
+// }
+});

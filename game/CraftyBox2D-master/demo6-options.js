@@ -1,9 +1,12 @@
 // game variable
 var gv = {
+	PTM_RATIO : 32,
 	shape : 'circle',
 	r : 0.51,
 	size : 64,
 	hero : [],
+	enemyData : [],
+	enemy : [],
 	objects : []
 };
 
@@ -24,29 +27,46 @@ var game = {
 
 		// load png
 		Crafty.sprite(100, "img/822.png", {
-			role1 : [ 0, 0 ]
+			helo1 : [ 0, 0 ]
 		});
 		Crafty.sprite(100, "img/912.png", {
-			role2 : [ 0, 0 ]
+			helo2 : [ 0, 0 ]
 		});
 		Crafty.sprite(100, "img/945.png", {
-			role3 : [ 0, 0 ]
+			helo3 : [ 0, 0 ]
 		});
 		Crafty.sprite(100, "img/1025.png", {
-			role4 : [ 0, 0 ]
+			helo4 : [ 0, 0 ]
 		});
 		Crafty.sprite(100, "img/1026.png", {
-			role5 : [ 0, 0 ]
+			helo5 : [ 0, 0 ]
 		});
 		Crafty.sprite(100, "img/1046.png", {
-			role6 : [ 0, 0 ]
+			helo6 : [ 0, 0 ]
 		});
 		Crafty.sprite(100, "img/1047.png", {
-			role7 : [ 0, 0 ]
+			helo7 : [ 0, 0 ]
 		});
 		Crafty.sprite(100, "img/1048.png", {
-			role8 : [ 0, 0 ]
+			helo8 : [ 0, 0 ]
 		});
+
+		Crafty.sprite(100, "img/461.png", {
+			enemy1 : [ 0, 0 ]
+		});
+		Crafty.sprite(100, "img/462.png", {
+			enemy2 : [ 0, 0 ]
+		});
+		Crafty.sprite(100, "img/463.png", {
+			enemy3 : [ 0, 0 ]
+		});
+		Crafty.sprite(100, "img/464.png", {
+			enemy4 : [ 0, 0 ]
+		});
+		Crafty.sprite(100, "img/465.png", {
+			enemy5 : [ 0, 0 ]
+		});
+
 		Crafty.sprite(600, 800, "img/f181.png", {
 			boss : [ 0, 0 ]
 		});
@@ -254,10 +274,10 @@ var game = {
 	 */
 	createHero : function(data) {
 		for (var x = 0; x < 6; x++) {
-			// var role = "2D, Canvas,role" + (x + 1);
-			var role = "2D, Canvas, Mouse, Box2D, since, Sense, " + "role"
+			// var helo = "2D, Canvas,helo" + (x + 1);
+			var helo = "2D, Canvas, Mouse, Box2D, hero, Sense, " + "helo"
 					+ (x + 1);
-			var r = Crafty.e(role).origin("center");
+			var r = Crafty.e(helo).origin("center");
 			var y = 8;
 			var fallingElement = r.attr({
 				p : {
@@ -314,8 +334,121 @@ var game = {
 	/**
 	 * 建置敵人
 	 */
-	createEnemy : function(data) {
+	createEnemy : function() {
+		//
+		gv.enemyData = [ {
+			type : 'enemy1',
+			x : 0,
+			y : 0
+		}, {
+			type : 'enemy2',
+			x : 2,
+			y : 0
+		}, {
+			type : 'enemy3',
+			x : 4,
+			y : 0
+		}, {
+			type : 'enemy4',
+			x : 1,
+			y : 1
+		}, {
+			type : 'enemy5',
+			x : 3,
+			y : 1
+		}, {
+			type : 'enemy1',
+			x : 5,
+			y : 1
+		}, {
+			type : 'enemy2',
+			x : 0,
+			y : 2
+		}, {
+			type : 'enemy3',
+			x : 2,
+			y : 2
+		}, {
+			type : 'enemy4',
+			x : 4,
+			y : 2
+		}, {
+			type : 'enemy5',
+			x : 1,
+			y : 3
+		}, {
+			type : 'enemy1',
+			x : 3,
+			y : 3
+		}, {
+			type : 'enemy2',
+			x : 5,
+			y : 3
+		} ];
 
+		Crafty.e("Delay").delay(function() {
+			var data = gv.enemyData.shift();
+			var efficacy = Crafty.e("exeDarkness1");
+			efficacy.attr({
+				x : (data.x * gv.size) + (gv.size / 2) - efficacy.w / 2,
+				y : (data.y * gv.size) + (gv.size / 2) - efficacy.h / 2,
+				z : (data.z || 10) + 1
+			});
+			console.log(efficacy.exeSecond);
+			// .origin("center");
+			// Crafty.e("Delay").delay(function() {
+			// game.createSingleEnemy(data);
+			// }, efficacy.exeSecond, 0);
+			game.createSingleEnemy(data);
+		}, 100, gv.enemyData.length - 1);
+	},
+	/**
+	 * 建置敵人
+	 */
+	createSingleEnemy : function(data) {
+		var helo = "2D, Canvas, Mouse, Box2D, enemy, Sense";
+		var r = Crafty.e(helo).origin("center");
+		r.addComponent(data.type);
+		var fallingElement = r.attr({
+			p : {
+				x : data.x,
+				y : data.y
+			},
+			x : data.x * gv.size,
+			y : data.y * gv.size, // 0
+			h : gv.size,
+			w : gv.size,
+			r : gv.r
+		}).box2d({
+			isSensor : true, // 傳感器(default:true, 碰撞時反饋
+			// categoryBits : (i % 2 == 0 ? 2 : 4),
+			// maskBits : (i % 2 == 0 ? 3 : 5),
+			// groupIndex : i % 3,
+			// bodyType : i % 2 == 0 ? 'static' : 'dynamic', // dynamic
+			// bodyType : 'dynamic', // dynamic
+			// bodyType : 'static', // static
+			density : 0, // 1.0 質量[旋轉](設置密度密度為0，即表示該剛體是靜止不動的)
+			friction : 0, // 2 表面摩擦力
+			restitution : 0, // 0.2 表面張力[彈力](這個值越大，剛體越硬) 彈力
+			shape : gv.shape
+		}).onContact("Sense", game.contactSense);
+
+		var hp = Crafty.e('blood').set({
+			type : 'HP',
+			x : data.x * gv.size + 5,
+			y : data.y * gv.size + gv.size - 15,
+			h : 4,
+			w : gv.size - 10
+		});
+		r.attach(hp);
+		hp.setMaxValue(9999);
+		hp.setValue(9999);
+
+		// 敵方
+		gv.enemy.push(fallingElement);
+
+		// 放入二維陣列
+		gv.objects[data.x][data.y] = fallingElement;
 	},
 	/**
 	 * 建置感應區
@@ -381,7 +514,7 @@ var game = {
 				setPosition(block.body, p);
 				var data = block.body.GetUserData();
 				// 和角色交換才播音效
-				if (block.body.GetUserData().has("since")) {
+				if (block.body.GetUserData().has("hero")) {
 					Crafty.audio.play("switch");
 					var attack = Crafty.e("exeIce3");
 					attack.attr({

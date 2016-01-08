@@ -351,6 +351,10 @@ Crafty.c("blood", {
 		this.attach(shadow);
 		return this;
 	},
+	setZindex : function(value) {
+		this.z = value;
+		this.detail.z = value + 1;
+	},
 	getValue : function() {
 		return this.value;
 	},

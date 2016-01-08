@@ -1,6 +1,6 @@
 var size = 64;
 var zIndex = 8;
-var world, PTM_RATIO = 32, w = size * 6, h = size * 9, hw = w / 2, hh = h / 2, mouseJoint, ctx = this, isMouseDown = false, mouseX, mouseY, mousePVec, selectedBody, selectedFixture;
+var world, w = gv.size * 6, h = gv.size * 9, mouseJoint, ctx = this, isMouseDown = false, mouseX, mouseY, mousePVec, selectedBody, selectedFixture;
 var hero = [];
 var finalMovePoint = {};
 var isMouseMove = false;
@@ -15,9 +15,9 @@ var gameInit = function() {
 	// Crafty.canvas.init(); //Crafty.js 0.6.x
 	Crafty.canvasLayer.init(); // Crafty.js 0.7.x
 	// Init the box2d world, gx = 0, gy = 10
-	// Crafty.box2D.init(0, 10, PTM_RATIO, true);
+	// Crafty.box2D.init(0, 10, gv.PTM_RATIO, true);
 	// 設定無重力
-	Crafty.box2D.init(0, 0, PTM_RATIO, true);
+	Crafty.box2D.init(0, 0, gv.PTM_RATIO, true);
 	world = Crafty.box2D.world;
 	// Start the Box2D debugger
 	// Crafty.box2D.showDebugInfo();
@@ -25,8 +25,8 @@ var gameInit = function() {
 	Crafty.scene("loading", function() {
 		// Crafty.background("#000000");
 		Crafty.e("2D, DOM, Text").attr({
-			x : hw - 50,
-			y : hh - 10,
+			x : w / 2 - 50,
+			y : h / 2 - 10,
 			w : 100,
 			h : 20
 		}).text("Loading").css({
@@ -35,8 +35,8 @@ var gameInit = function() {
 		});
 
 		Crafty.e("2D, DOM, ProgressBar").attr({
-			x : hw - 50,
-			y : hh + 10,
+			x : w / 2 - 50,
+			y : h / 2 + 10,
 			w : 100,
 			h : 20,
 			z : 100
@@ -54,17 +54,19 @@ var gameInit = function() {
 					"img/822.png", "img/912.png", "img/945.png",
 					"img/1025.png", "img/1026.png", "img/1046.png",
 					"img/1047.png", "img/1048.png", "img/f181.png",
-					"img/IconSet.png", "icon/spinning-sword.png",
-					"icon/comet-spark.png", "icon/checked-shield.png",
-					"icon/james-bond-aperture.png", "icon/electric.png",
-					"img/Hexagram.png", "img/Flame.png", "img/DarkSpace1.png",
-					"Animations/Attack1.png", "Animations/Attack2.png",
-					"Animations/Attack3.png", "Animations/Attack4.png",
-					"Animations/Attack5.png", "Animations/Darkness1.png",
-					"Animations/Meteor.png", "Animations/Ice3.png",
-					"Animations/Balloon.png", "Animations/Heal1.png",
-					"Animations/Heal2.png", "Animations/Heal4.png",
-					"Animations/Heal6.png", "Animations/State6.png" ],
+					"img/461.png", "img/462.png", "img/463.png", "img/464.png",
+					"img/465.png", "img/IconSet.png",
+					"icon/spinning-sword.png", "icon/comet-spark.png",
+					"icon/checked-shield.png", "icon/james-bond-aperture.png",
+					"icon/electric.png", "img/Hexagram.png", "img/Flame.png",
+					"img/DarkSpace1.png", "Animations/Attack1.png",
+					"Animations/Attack2.png", "Animations/Attack3.png",
+					"Animations/Attack4.png", "Animations/Attack5.png",
+					"Animations/Darkness1.png", "Animations/Meteor.png",
+					"Animations/Ice3.png", "Animations/Balloon.png",
+					"Animations/Heal1.png", "Animations/Heal2.png",
+					"Animations/Heal4.png", "Animations/Heal6.png",
+					"Animations/State6.png" ],
 			audio : {
 				"theme" : [ "audio/theme2.mp3" ],
 				"Explosion" : [ "audio/Explosion1.ogg" ],
@@ -105,7 +107,7 @@ var generateWorld = function() {
 	// 建置英雄
 	game.createHero();
 	// 建置敵人
-	// game.createEnemy();
+	game.createEnemy();
 	// 建置感應區
 	game.createSense();
 
@@ -143,17 +145,102 @@ var generateWorld = function() {
 			// for ( var i in hero) {
 			// attackCreate(hero[i].p);
 			// }
+
+			for ( var i in gv.hero) {
+				gv.hero[i].allowAttack = false;
+			}
+			for (var x = 0; x < 6; x++) {
+				for (var y = 8; y >= 5; y--) {
+					// for (var x = 0; x < 6; x++) {
+					var hero1 = gv.objects[x][y];
+					// console.log('x:', x, 'y:', y, 'hero:', hero1.has("hero"),
+					// hero1.allowAttack);
+					if (hero1.has("hero") && !hero1.allowAttack) {
+						if (y == 5) {
+							hero1.allowAttack = true;
+							waitArray.push({
+								x : hero1.p.x,
+								y : hero1.p.y,
+								h : 1
+							});
+						} else {
+							var sy = y - 1;
+							while (sy >= 5 && !hero1.allowAttack) {
+								var hero2 = gv.objects[x][sy];
+								// console.log('x:', x, sy, hero2.has("hero"));
+								if (hero2.has("hero")) {
+									console.log('hero2:', hero2);
+									hero1.allowAttack = true;
+									hero2.allowAttack = true;
+									waitArray.push({
+										x : hero2.p.x,
+										y : hero2.p.y,
+										h : y - sy + 1
+									});
+								}
+								sy--;
+							}
+							if (!hero1.allowAttack) {
+								hero1.allowAttack = true;
+								waitArray.push({
+									x : hero1.p.x,
+									y : hero1.p.y,
+									h : 1
+								});
+							}
+						}
+					}
+				}
+			}
+			console.log('waitArray:', waitArray);
+			startProcess = true;
 		}
 	});
 
 	Crafty.bind("EnterFrame", onEnterFrame);
 
-	// Crafty.e("Delay").delay(doSomething, 200, -1);
+	Crafty.e("Delay").delay(process, 200, -1);
+	// Crafty.e("Delay").delay(process, 200, -1);
+}
+
+// var waitArray = [ {
+// x : 2,
+// y : 2,
+// h : 2
+// }, {
+// x : 4,
+// y : 4,
+// h : 3
+// } ];
+var waitArray = [];
+var waitIndex = 0;
+var startProcess = false;
+var process = function() {
+	if (startProcess) {
+		if (isMouseMove && !isMouseDown) {
+			if (waitIndex < waitArray.length) {
+				var hero = waitArray[waitIndex++];
+				Crafty.e("locking").exe({
+					x : hero.x,
+					y : hero.y,
+					h : hero.h,
+					color : 'red'
+				});
+			}
+		}
+
+		if (waitIndex >= waitArray.length) {
+			isMouseMove = false;
+			waitIndex = 0; // clear
+			waitArray = []; // clear
+			startProcess = false;
+		}
+	}
 }
 
 mousemoved = function(e) {
-	mouseX = e.clientX / PTM_RATIO;
-	mouseY = e.clientY / PTM_RATIO;
+	mouseX = e.clientX / gv.PTM_RATIO;
+	mouseY = e.clientY / gv.PTM_RATIO;
 };
 
 getBodyAtMouse = function() {
@@ -173,7 +260,7 @@ getBodyAtMouse = function() {
 
 getBodyCB = function(fixture) {
 	var fbody = fixture.GetBody();
-	if (fbody.GetUserData().has("since")) {
+	if (fbody.GetUserData().has("hero")) {
 		if (fbody.GetType() !== b2Body.b2_staticBody) {
 			if (fixture.GetShape().TestPoint(fbody.GetTransform(), mousePVec)) {
 				selectedFixture = fixture;
@@ -194,11 +281,11 @@ getBodyCB = function(fixture) {
 				if (userData._children) {
 					for ( var i in userData._children) {
 						var o = userData._children[i];
-						if (o.has("icon")) {
+						if (o.has("icon") || o.has("SpriteAnimation")) {
 							o.z = ++zIndex;
 						}
-						if (o.has("SpriteAnimation")) {
-							o.z = ++zIndex;
+						if (o.has("blood")) {
+							o.setZindex(++zIndex);
 						}
 					}
 				}
@@ -383,8 +470,8 @@ function getFixPosition(body) {
 function setPosition(body, p) {
 	if (body && p) {
 		body.SetPosition({
-			x : p.x * size / PTM_RATIO,
-			y : p.y * size / PTM_RATIO
+			x : p.x * size / gv.PTM_RATIO,
+			y : p.y * size / gv.PTM_RATIO
 		});
 	}
 }
@@ -481,7 +568,7 @@ var attackCreate = function(p) {
 				})
 	}
 
-	// attackBody.ApplyImpulse(new b2Vec2(10 / PTM_RATIO, 0), boxAttack.body
+	// attackBody.ApplyImpulse(new b2Vec2(10 / gv.PTM_RATIO, 0), boxAttack.body
 	// .GetWorldCenter());
 }
 
