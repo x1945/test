@@ -73,7 +73,8 @@ var gameInit = function() {
 				"switch" : [ "audio/koma_irekae.mp3" ],
 				"Flash2" : [ "audio/Flash2.ogg" ],
 				"Heal3" : [ "audio/Heal3.ogg" ],
-				"Down2" : [ "audio/Down2.ogg" ]
+				"Down2" : [ "audio/Down2.ogg" ],
+				"Battle3" : [ "audio/Battle3.ogg" ]
 			}
 		}, function() {
 			// Crafty.audio.play("theme", -1, 0.3);
@@ -265,7 +266,7 @@ var process = function() {
 						});
 					}, 200, 0);
 
-					Crafty.audio.play("Down2", 1);
+					Crafty.audio.play("Battle3", 1);
 
 					// hero.timeout(function() {
 					// Crafty.e("heroAnimation").play({
