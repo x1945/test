@@ -50,29 +50,30 @@ var gameInit = function() {
 				});
 
 		Crafty.load({
-			images : [ "img/Inside_A4.png", "img/Outside_A2.png",
-					"img/822.png", "img/912.png", "img/945.png",
-					"img/1025.png", "img/1026.png", "img/1046.png",
-					"img/1047.png", "img/1048.png", "img/f181.png",
-					"img/461.png", "img/462.png", "img/463.png", "img/464.png",
-					"img/465.png", "img/IconSet.png",
+			images : [ "img/1066.png", "img/1067.png", "img/1068.png",
+					"img/1046.png", "img/1047.png", "img/1048.png",
+					"icon/1066.png", "icon/1067.png", "icon/1068.png",
+					"icon/1046.png", "icon/1047.png", "icon/1048.png",
+					"icon/461.png", "icon/462.png", "icon/463.png",
+					"icon/464.png", "icon/465.png", "img/IconSet.png",
 					"icon/spinning-sword.png", "icon/comet-spark.png",
 					"icon/checked-shield.png", "icon/james-bond-aperture.png",
 					"icon/electric.png", "img/Hexagram.png", "img/Flame.png",
 					"img/DarkSpace1.png", "Animations/Attack1.png",
 					"Animations/Attack2.png", "Animations/Attack3.png",
 					"Animations/Attack4.png", "Animations/Attack5.png",
-					"Animations/Darkness1.png", "Animations/Meteor.png",
-					"Animations/Ice3.png", "Animations/Balloon.png",
-					"Animations/Heal1.png", "Animations/Heal2.png",
-					"Animations/Heal4.png", "Animations/Heal6.png",
-					"Animations/State6.png" ],
+					"Animations/Darkness1.png", "Animations/Light7.png",
+					"Animations/Meteor.png", "Animations/Ice3.png",
+					"Animations/Balloon.png", "Animations/Heal1.png",
+					"Animations/Heal2.png", "Animations/Heal4.png",
+					"Animations/Heal6.png", "Animations/State6.png" ],
 			audio : {
 				"theme" : [ "audio/theme2.mp3" ],
 				"Explosion" : [ "audio/Explosion1.ogg" ],
 				"switch" : [ "audio/koma_irekae.mp3" ],
 				"Flash2" : [ "audio/Flash2.ogg" ],
-				"Heal3" : [ "audio/Heal3.ogg" ]
+				"Heal3" : [ "audio/Heal3.ogg" ],
+				"Down2" : [ "audio/Down2.ogg" ]
 			}
 		}, function() {
 			// Crafty.audio.play("theme", -1, 0.3);
@@ -100,6 +101,13 @@ var gameInit = function() {
 }
 
 var generateWorld = function() {
+	// Crafty.e("Delay").delay(function() {
+	// Crafty.e("heroAnimation").play({
+	// type : 'up',
+	// png : 'hero1png'
+	// });
+	// }, 3000, 1);
+
 	// 建立邊牆
 	game.createWalls();
 	// 建立地板
@@ -161,7 +169,8 @@ var generateWorld = function() {
 							waitArray.push({
 								x : hero1.p.x,
 								y : hero1.p.y,
-								h : 1
+								h : 1,
+								heroes : [ hero1.png ]
 							});
 						} else {
 							var sy = y - 1;
@@ -175,7 +184,8 @@ var generateWorld = function() {
 									waitArray.push({
 										x : hero2.p.x,
 										y : hero2.p.y,
-										h : y - sy + 1
+										h : y - sy + 1,
+										heroes : [ hero1.png, hero2.png ]
 									});
 								}
 								sy--;
@@ -185,7 +195,8 @@ var generateWorld = function() {
 								waitArray.push({
 									x : hero1.p.x,
 									y : hero1.p.y,
-									h : 1
+									h : 1,
+									heroes : [ hero1.png ]
 								});
 							}
 						}
@@ -226,6 +237,49 @@ var process = function() {
 					h : hero.h,
 					color : 'red'
 				});
+
+				// 播放英雄動畫
+				if (hero.heroes.length > 1) {
+					gv.heroAnimationPlaying = true;
+
+					// overflow
+					Crafty.e('2D, Canvas, Color').attr({
+						x : 0,
+						y : 0,
+						w : 6 * gv.size,
+						h : 9 * gv.size,
+						z : 9999
+					}).color('rgba(0, 0, 0, 0.5)');
+
+					console.log('hero.heroes:', hero.heroes);
+					Crafty.e("Delay").delay(function() {
+						Crafty.e("heroAnimation").play({
+							type : 'up',
+							png : hero.heroes[1]
+						});
+					}, 100, 0);
+					Crafty.e("Delay").delay(function() {
+						Crafty.e("heroAnimation").play({
+							type : 'down',
+							png : hero.heroes[0]
+						});
+					}, 200, 0);
+
+					Crafty.audio.play("Down2", 1);
+
+					// hero.timeout(function() {
+					// Crafty.e("heroAnimation").play({
+					// type : 'left',
+					// png : hero.heroes[1].png
+					// });
+					// }, 100);
+					// hero.timeout(function() {
+					// Crafty.e("heroAnimation").play({
+					// type : 'right',
+					// png : hero.heroes[1].png
+					// });
+					// }, 200);
+				}
 			}
 		}
 

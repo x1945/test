@@ -1,3 +1,31 @@
+//
+Crafty.c("BorderBox", {
+	init : function() {
+		this.addComponent("2D, Canvas, Color");
+		this.bind("Draw", this._drawBorderBox);
+		this.ready = true;
+	},
+	_drawBorderBox : function(e) {
+		e.ctx.lineWidth = 1;
+		e.ctx.strokeStyle = 'black';
+		e.ctx.strokeRect(e.pos._x, e.pos._y, e.pos._w, e.pos._h);
+	}
+});
+
+//
+Crafty.c("overflow", {
+	init : function() {
+		this.addComponent("2D, Canvas, Color");
+		this.bind("Draw", this._drawBorderBox);
+		this.ready = true;
+	},
+	_drawBorderBox : function(e) {
+		e.ctx.lineWidth = 1;
+		e.ctx.strokeStyle = 'black';
+		e.ctx.strokeRect(e.pos._x, e.pos._y, e.pos._w, e.pos._h);
+	}
+});
+
 // 消失
 Crafty.c("dead", {
 	required : "2D, Canvas, Color",
@@ -37,6 +65,7 @@ Crafty.c("dead", {
 	}
 });
 
+// 計時器
 Crafty.c("timing", {
 	init : function() {
 		this.addComponent("2D, Canvas, Color, Tween");
@@ -68,7 +97,7 @@ Crafty.c("locking", {
 		// this.addComponent("2D, DOM, Canvas, Color, Tween");
 	},
 	exe : function(option) {
-		console.log('option:', option);
+		// console.log('option:', option);
 		this.attr({
 			x : option.x * gv.size - gv.size / 2,
 			y : option.y * gv.size - gv.size / 2,
@@ -107,4 +136,82 @@ Crafty.c("locking", {
 // }
 // }
 // }
+});
+
+Crafty.c("heroAnimation", {
+	init : function() {
+		this.addComponent("2D, Canvas, Tween");
+	},
+	play : function(option) {
+		console.log('heroAnimation:', option);
+		this.addComponent(option.png);
+		this.w = gv.size * 6;
+		this.h = gv.size * 6;
+		this.alpha = 0.0;
+
+		switch (option.type) {
+		case 'up':
+			this.x = 0;
+			this.y = -2 * gv.size;
+			this.z = 10000;
+
+			this.tween({
+				y : -1 * gv.size,
+				alpha : 1.0
+			}, option.second || 300).timeout(function() {
+				this.tween({
+					y : -0.5 * gv.size
+				}, 500).timeout(function() {
+					this.tween({
+						y : 6 * gv.size,
+						alpha : 0.0
+					}, 200).timeout(function() {
+						this.destroy();
+					}, 200);
+				}, 500);
+
+			}, 300);
+			// 700
+
+			break;
+		case 'down':
+			this.x = 0;
+			this.y = 3 * gv.size;
+			this.z = 10001;
+
+			this.tween({
+				y : 2 * gv.size,
+				alpha : 1.0
+			}, option.second || 200).timeout(function() {
+				this.tween({
+					y : 1.5 * gv.size
+				}, 500).timeout(function() {
+					this.tween({
+						y : -5 * gv.size,
+						alpha : 0.0
+					}, 200).timeout(function() {
+						this.destroy();
+					}, 200);
+				}, 500);
+			}, 200);
+
+			break;
+		}
+
+		// this.origin("center");
+		return this;
+	}
+// ,
+// events : {
+// "EnterFrame" : function() {
+// }
+// }
+});
+
+Crafty.c("lockingSquare", {
+	init : function() {
+		// this.addComponent("2D, DOM, Canvas, Color");
+		this.addComponent("2D, Canvas, Color");
+		this.color("rgba(255, 255, 0, 0.1)");
+	}
 });

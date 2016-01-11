@@ -98,12 +98,15 @@ Crafty.c("attackAnimation", {
 		this.reel("attackAction", this.exeSecond, animationArray);
 		return this;
 	},
-	playAnimation : function() {
-		this.animate("attackAction", 1);
-		this.timeout(function() {
-			this.destroy();
-		}, this.exeSecond);
-		return this;
+	playAnimation : function(value) {
+		var v = value || 1;
+		this.animate("attackAction", v);
+		if (v != -1) {
+			this.timeout(function() {
+				this.destroy();
+			}, this.exeSecond * v);
+			return this;
+		}
 	}
 // events : {
 // "EnterFrame" : function() {
@@ -177,7 +180,7 @@ Crafty.c("exeMeteor", {
 Crafty.c("exeDarkness1", {
 	init : function() {
 		this.addComponent("attackAnimation");
-		 this.setAnimation("Darkness1", [ [ 0, 0 ], [ 1, 0 ], [ 2, 0 ],
+		this.setAnimation("Darkness1", [ [ 0, 0 ], [ 1, 0 ], [ 2, 0 ],
 				[ 3, 0 ], [ 4, 0 ], [ 0, 1 ], [ 1, 1 ], [ 2, 1 ], [ 3, 1 ] ]);
 		// this.setAnimation("Darkness1", [ [ 0, 0 ], [ 1, 0 ], [ 2, 0 ],
 		// [ 3, 0 ], [ 0, 0 ], [ 1, 0 ], [ 2, 0 ], [ 3, 0 ], [ 0, 0 ],
@@ -188,6 +191,19 @@ Crafty.c("exeDarkness1", {
 		// [ 1, 0 ], [ 2, 0 ], [ 3, 0 ], [ 4, 0 ], [ 0, 1 ], [ 1, 1 ],
 		// [ 2, 1 ], [ 3, 1 ] ]);
 		this.playAnimation();
+	}
+});
+
+Crafty.c("exeLight7", {
+	init : function() {
+		this.addComponent("attackAnimation");
+		this.setAnimation("Light7", [ [ 0, 0 ], [ 1, 0 ], [ 2, 0 ], [ 3, 0 ],
+				[ 4, 0 ], [ 0, 1 ], [ 1, 1 ], [ 2, 1 ], [ 3, 1 ], [ 4, 1 ],
+				[ 0, 2 ], [ 1, 2 ], [ 2, 2 ], [ 3, 2 ], [ 4, 2 ], [ 0, 3 ],
+				[ 1, 3 ], [ 2, 3 ], [ 3, 3 ], [ 4, 3 ], [ 0, 4 ], [ 1, 4 ],
+				[ 2, 4 ], [ 3, 4 ], [ 4, 4 ], [ 0, 5 ], [ 1, 5 ], [ 2, 5 ],
+				[ 3, 5 ], [ 4, 5 ] ]);
+		this.playAnimation(-1);
 	}
 });
 
@@ -220,8 +236,8 @@ Crafty.c("exeHeal1", {
 Crafty.c("exeHeal2", {
 	init : function() {
 		this.addComponent("attackAnimation");
-		this.setAnimation("Heal2", [ [ 4, 0 ], [ 0, 1 ], [ 1, 1 ], [ 2, 1 ] ]);
-		this.playAnimation();
+		 this.setAnimation("Heal2", [ [ 4, 0 ], [ 0, 1 ], [ 1, 1 ], [ 2, 1 ] ]);
+		this.playAnimation(-1);
 	}
 });
 

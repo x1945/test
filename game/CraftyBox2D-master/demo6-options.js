@@ -7,7 +7,11 @@ var gv = {
 	hero : [],
 	enemyData : [],
 	enemy : [],
-	objects : []
+	objects : [],
+	heroAnimationPlaying : false, // 英雄動畫播放中
+	enemyAnimationPlaying : false, // 敵人動畫播放中
+	attackAnimationPlaying : false, // 攻擊動畫播放中
+	test : ''
 };
 
 // 設定
@@ -24,46 +28,58 @@ var game = {
 				gv.objects[x][y] = null;
 			}
 		}
-
 		// load png
-		Crafty.sprite(100, "img/822.png", {
-			helo1 : [ 0, 0 ]
+		Crafty.sprite(512, "img/1066.png", {
+			hero1png : [ 0, 0 ]
 		});
-		Crafty.sprite(100, "img/912.png", {
-			helo2 : [ 0, 0 ]
+		Crafty.sprite(512, "img/1067.png", {
+			hero2png : [ 0, 0 ]
 		});
-		Crafty.sprite(100, "img/945.png", {
-			helo3 : [ 0, 0 ]
+		Crafty.sprite(512, "img/1068.png", {
+			hero3png : [ 0, 0 ]
 		});
-		Crafty.sprite(100, "img/1025.png", {
-			helo4 : [ 0, 0 ]
+		Crafty.sprite(512, "img/1046.png", {
+			hero4png : [ 0, 0 ]
 		});
-		Crafty.sprite(100, "img/1026.png", {
-			helo5 : [ 0, 0 ]
+		Crafty.sprite(512, "img/1047.png", {
+			hero5png : [ 0, 0 ]
 		});
-		Crafty.sprite(100, "img/1046.png", {
-			helo6 : [ 0, 0 ]
-		});
-		Crafty.sprite(100, "img/1047.png", {
-			helo7 : [ 0, 0 ]
-		});
-		Crafty.sprite(100, "img/1048.png", {
-			helo8 : [ 0, 0 ]
+		Crafty.sprite(512, "img/1048.png", {
+			hero6png : [ 0, 0 ]
 		});
 
-		Crafty.sprite(100, "img/461.png", {
+		Crafty.sprite(100, "icon/1066.png", {
+			hero1 : [ 0, 0 ]
+		});
+		Crafty.sprite(100, "icon/1067.png", {
+			hero2 : [ 0, 0 ]
+		});
+		Crafty.sprite(100, "icon/1068.png", {
+			hero3 : [ 0, 0 ]
+		});
+		Crafty.sprite(100, "icon/1046.png", {
+			hero4 : [ 0, 0 ]
+		});
+		Crafty.sprite(100, "icon/1047.png", {
+			hero5 : [ 0, 0 ]
+		});
+		Crafty.sprite(100, "icon/1048.png", {
+			hero6 : [ 0, 0 ]
+		});
+
+		Crafty.sprite(100, "icon/461.png", {
 			enemy1 : [ 0, 0 ]
 		});
-		Crafty.sprite(100, "img/462.png", {
+		Crafty.sprite(100, "icon/462.png", {
 			enemy2 : [ 0, 0 ]
 		});
-		Crafty.sprite(100, "img/463.png", {
+		Crafty.sprite(100, "icon/463.png", {
 			enemy3 : [ 0, 0 ]
 		});
-		Crafty.sprite(100, "img/464.png", {
+		Crafty.sprite(100, "icon/464.png", {
 			enemy4 : [ 0, 0 ]
 		});
-		Crafty.sprite(100, "img/465.png", {
+		Crafty.sprite(100, "icon/465.png", {
 			enemy5 : [ 0, 0 ]
 		});
 
@@ -95,15 +111,6 @@ var game = {
 			characteristic6 : [ 14, 11 ],
 			characteristic7 : [ 15, 11 ],
 			characteristic8 : [ 16, 11 ]
-		});
-
-		// 地板
-		Crafty.sprite(32, "img/Inside_A4.png", {
-			side1 : [ 6, 11, 2, 2 ]
-		});
-		Crafty.sprite(32, "img/Outside_A2.png", {
-			// side1 : [ 6, 7, 2, 2 ],
-			side2 : [ 6, 1, 2, 2 ]
 		});
 
 		// Hexagram
@@ -153,7 +160,11 @@ var game = {
 		Crafty.sprite(192, "Animations/Darkness1.png", {
 			Darkness1 : [ 0, 0 ]
 		});
-		// attack5
+		// Light7
+		Crafty.sprite(192, "Animations/Light7.png", {
+			Light7 : [ 0, 0 ]
+		});
+		// Meteor
 		Crafty.sprite(192, "Animations/Meteor.png", {
 			Meteor : [ 0, 0 ]
 		});
@@ -242,28 +253,22 @@ var game = {
 	createSide : function() {
 		for (var x = 0; x < 6; x++) {
 			for (var y = 0; y < 4; y++) {
-				var r = Crafty.e("2D, DOM").attr({
+				Crafty.e('BorderBox').attr({
 					x : x * gv.size,
 					y : y * gv.size, // 0
 					h : gv.size,
-					w : gv.size
-				}).css({
-					'border-bottom' : '1px solid black',
-					'border-left' : (x == 0 ? 0 : 1) + 'px solid black'
+					w : gv.size,
+					z : 0
 				});
 			}
-		}
 
-		for (var x = 0; x < 6; x++) {
 			for (var y = 5; y < 9; y++) {
-				var r = Crafty.e("2D, DOM").attr({
+				Crafty.e('BorderBox').attr({
 					x : x * gv.size,
 					y : y * gv.size, // 0
 					h : gv.size,
-					w : gv.size
-				}).css({
-					'border-top' : '1px solid black',
-					'border-left' : (x == 0 ? 0 : 1) + 'px solid black'
+					w : gv.size,
+					z : 0
 				});
 			}
 		}
@@ -275,7 +280,7 @@ var game = {
 	createHero : function(data) {
 		for (var x = 0; x < 6; x++) {
 			// var helo = "2D, Canvas,helo" + (x + 1);
-			var helo = "2D, Canvas, Mouse, Box2D, hero, Sense, " + "helo"
+			var helo = "2D, Canvas, Mouse, Box2D, hero, Sense, " + "hero"
 					+ (x + 1);
 			var r = Crafty.e(helo).origin("center");
 			var y = 8;
@@ -284,6 +289,7 @@ var game = {
 					x : x,
 					y : y
 				},
+				png : 'hero' + (x + 1) + 'png',
 				x : x * gv.size,
 				y : y * gv.size, // 0
 				h : gv.size,
@@ -394,7 +400,7 @@ var game = {
 				y : (data.y * gv.size) + (gv.size / 2) - efficacy.h / 2,
 				z : (data.z || 10) + 1
 			});
-			console.log(efficacy.exeSecond);
+			// console.log(efficacy.exeSecond);
 			// .origin("center");
 			// Crafty.e("Delay").delay(function() {
 			// game.createSingleEnemy(data);
@@ -454,12 +460,13 @@ var game = {
 	 * 建置感應區
 	 */
 	createSense : function() {
+		var b = false;
 		for (var x = 0; x < 6; x++) {
 			for (var y = 0; y < 9; y++) {
 				if (gv.objects[x][y] == null) {
 					var role = "2D, Canvas, Color, Box2D, Sense";
-					var r = Crafty.e(role).origin("center");
-					r.attr({
+					var r = Crafty.e(role); // .origin("center");
+					var box = r.attr({
 						p : {
 							x : x,
 							y : y
@@ -477,7 +484,48 @@ var game = {
 						restitution : 0, // 0.2 表面張力[彈力](這個值越大，剛體越硬) 彈力
 						shape : gv.shape
 					}).onContact("Sense", game.contactSense);
-					gv.objects[x][y] = r;
+					if (!b && y >= 5) {
+						// box.attach(Crafty.e("exeLight7").attr({
+						// x : x * gv.size,
+						// y : y * gv.size,
+						// h : gv.size,
+						// w : gv.size,
+						// }));
+						// gv.combo = box;
+						//
+						// Crafty.e("lockingSquare").attr({
+						// x : 0,
+						// y : y * gv.size,
+						// h : gv.size * 4,
+						// w : gv.size,
+						// z : 1
+						// }).bind('EnterFrame', function() {
+						// this.x = gv.combo.x;
+						// });
+						//
+						// Crafty.e("lockingSquare").attr({
+						// x : 0,
+						// y : y * gv.size,
+						// h : gv.size,
+						// w : gv.size * 6,
+						// z : 1
+						// }).bind('EnterFrame', function() {
+						// this.y = gv.combo.y;
+						// });
+
+						// box.attach(Crafty.e("exeHeal2").attr({
+						// x : x * gv.size - gv.size,
+						// y : y * gv.size - gv.size
+						// }));
+						b = true;
+					}
+					gv.objects[x][y] = box;
+
+					// test
+					// if (!b) {
+					// r.attach(Crafty.e("exeLight7"));
+					// b = true;
+					// }
 				}
 			}
 		}
