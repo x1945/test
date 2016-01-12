@@ -39,29 +39,10 @@ Crafty.c("dead", {
 		}, 500).timeout(function() {
 			world.DestroyBody(this.body);
 			this.destroy();
+			// this.dead = false;
 		}, 500);
 
 		this.dead = true;
-	},
-	// count : 0,
-	// dead : false,
-	events : {
-		"EnterFrame" : function() {
-			if (this.dead) {
-				// if (this.count++ < 10) {
-				this.w += 2;
-				this.h += 2;
-				// this.alpha -= 0.1;
-				this.body.SetPosition({
-					x : (this.x - 1) / PTM_RATIO,
-					y : (this.y - 1) / PTM_RATIO
-				});
-				// } else {
-				// world.DestroyBody(this.body);
-				// this.destroy();
-				// }
-			}
-		}
 	}
 });
 
@@ -150,52 +131,55 @@ Crafty.c("heroAnimation", {
 		this.alpha = 0.0;
 
 		switch (option.type) {
-		case 'up':
-			this.x = 0;
-			this.y = -2 * gv.size;
-			this.z = 10000;
+			case 'up':
+				this.x = 0;
+				this.y = -2 * gv.size;
+				this.z = 10000;
 
-			this.tween({
-				y : -1 * gv.size,
-				alpha : 1.0
-			}, option.second || 300).timeout(function() {
 				this.tween({
-					y : -0.5 * gv.size
-				}, 500).timeout(function() {
+					y : -1 * gv.size,
+					alpha : 1.0
+				}, option.second || 300).timeout(function() {
 					this.tween({
-						y : 6 * gv.size,
-						alpha : 0.0
-					}, 200).timeout(function() {
-						this.destroy();
-					}, 200);
-				}, 500);
+						y : -0.5 * gv.size
+					}, 500).timeout(function() {
+						this.tween({
+							y : 6 * gv.size,
+							alpha : 0.0
+						}, 200).timeout(function() {
+							this.destroy();
+						}, 200);
+					}, 500);
 
-			}, 300);
-			// 700
+				}, 300);
+				// 700
 
-			break;
-		case 'down':
-			this.x = 0;
-			this.y = 3 * gv.size;
-			this.z = 10001;
+				break;
+			case 'down':
+				this.x = 0;
+				this.y = 3 * gv.size;
+				this.z = 10001;
 
-			this.tween({
-				y : 2 * gv.size,
-				alpha : 1.0
-			}, option.second || 200).timeout(function() {
 				this.tween({
-					y : 1.5 * gv.size
-				}, 500).timeout(function() {
+					y : 2 * gv.size,
+					alpha : 1.0
+				}, option.second || 200).timeout(function() {
 					this.tween({
-						y : -5 * gv.size,
-						alpha : 0.0
-					}, 200).timeout(function() {
-						this.destroy();
-					}, 200);
-				}, 500);
-			}, 200);
+						y : 1.5 * gv.size
+					}, 500).timeout(function() {
+						this.tween({
+							y : -5 * gv.size,
+							alpha : 0.0
+						}, 200).timeout(function() {
+							game.overflow(false);
+							game.attack();
+							gv.heroAnimationPlaying = false;
+							this.destroy();
+						}, 200);
+					}, 500);
+				}, 200);
 
-			break;
+				break;
 		}
 
 		// this.origin("center");
@@ -213,5 +197,39 @@ Crafty.c("lockingSquare", {
 		// this.addComponent("2D, DOM, Canvas, Color");
 		this.addComponent("2D, Canvas, Color");
 		this.color("rgba(255, 255, 0, 0.1)");
+	}
+});
+
+// CD
+Crafty.c("CD", {
+	init : function() {
+		this.addComponent("2D, DOM, Canvas, Text");
+		// this.css({
+		// "color" : "#ffffff"
+		// });
+		this.textColor("#ffffff");
+		this.textFont({
+			size : '35px'
+		});
+	},
+	value : 0,
+	maxValue : 0,
+	place : function(x, y) {
+		this.x = x * gv.size + gv.size * 0.7;
+		this.y = y * gv.size;
+		return this;
+	},
+	setValue : function(value) {
+		this.value = value;
+		this.text(this.value);
+		return this;
+	},
+	reduce : function() {
+		this.value--;
+		this.text(this.value);
+	},
+	reset : function() {
+		this.setValue(this.maxValue);
+		return this;
 	}
 });

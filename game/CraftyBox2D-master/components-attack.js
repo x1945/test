@@ -73,8 +73,7 @@ Crafty.c("attackFlame", {
 			// this.body.rotation++;
 			// this.body.ApplyImpulse(new b2Vec2(0, -2 / PTM_RATIO), this.body
 			// .GetWorldCenter());
-			this.body.ApplyImpulse(new b2Vec2(this.v.x / PTM_RATIO, this.v.y
-					/ PTM_RATIO), this.body.GetWorldCenter());
+			this.body.ApplyImpulse(new b2Vec2(this.v.x / PTM_RATIO, this.v.y / PTM_RATIO), this.body.GetWorldCenter());
 
 			// 飛出邊界
 			if (this.x > 320 || this.x < -20 || this.y > 420 || this.y < -20) {
@@ -82,6 +81,39 @@ Crafty.c("attackFlame", {
 				this.destroy();
 			}
 		}
+	}
+});
+
+// 攻擊效果
+Crafty.c("attackFlame2", {
+	init : function() {
+		this.addComponent("2D, Canvas, Tween, SpriteAnimation, Flame");
+		this.origin("center");
+		var s = 100;
+		var flame1Array = [ [ 6, 4 ], [ 6, 5 ], [ 6, 6 ] ];
+		this.reel("flame1", flame1Array.length * s, flame1Array);
+		var flame2Array = [ [ 7, 4 ], [ 7, 5 ], [ 7, 6 ] ];
+		this.reel("flame2", flame2Array.length * s, flame2Array);
+		var flame3Array = [ [ 8, 4 ], [ 8, 5 ], [ 8, 6 ] ];
+		this.reel("flame3", flame3Array.length * s, flame3Array);
+		var flame4Array = [ [ 9, 4 ], [ 10, 4 ], [ 11, 4 ] ];
+		this.reel("flame4", flame4Array.length * s, flame4Array);
+		var flame5Array = [ [ 9, 5 ], [ 10, 5 ], [ 11, 5 ] ];
+		this.reel("flame5", flame5Array.length * s, flame5Array);
+	},
+	play : function(option) {
+		this.x = option.sx * gv.size + this.w / 2;
+		this.y = option.sy * gv.size + this.h / 2;
+
+		this.tween({
+			x : option.ex * gv.size + this.w / 2,
+			y : option.ey * gv.size + this.h / 2
+		// rotation : 90
+		}, option.second || 100).timeout(function() {
+			this.destroy();
+		}, option.second || 100);
+		this.animate(option.name, -1);
+		return this;
 	}
 });
 
@@ -128,8 +160,9 @@ Crafty.c("exeAttack1", {
 Crafty.c("exeAttack2", {
 	init : function() {
 		this.addComponent("attackAnimation");
-		this.setAnimation("Attack2", [ [ 0, 0 ], [ 1, 0 ], [ 2, 0 ], [ 3, 0 ],
-				[ 4, 0 ], [ 0, 1 ], [ 1, 1 ], [ 2, 1 ] ]);
+		this
+				.setAnimation("Attack2", [ [ 0, 0 ], [ 1, 0 ], [ 2, 0 ], [ 3, 0 ], [ 4, 0 ], [ 0, 1 ], [ 1, 1 ],
+						[ 2, 1 ] ]);
 		this.playAnimation();
 	}
 });
@@ -140,8 +173,9 @@ Crafty.c("exeAttack3", {
 		// this.setAnimation("Attack3", [ [ 0, 0 ], [ 1, 0 ], [ 2, 0 ], [ 3, 0
 		// ],
 		// [ 4, 0 ], [ 0, 1 ], [ 1, 1 ], [ 2, 1 ], [ 3, 1 ], [ 4, 1 ] ]);
-		this.setAnimation("Attack3", [ [ 0, 0 ], [ 1, 0 ], [ 2, 0 ], [ 3, 0 ],
-				[ 4, 0 ], [ 0, 1 ], [ 1, 1 ], [ 2, 1 ] ]);
+		this
+				.setAnimation("Attack3", [ [ 0, 0 ], [ 1, 0 ], [ 2, 0 ], [ 3, 0 ], [ 4, 0 ], [ 0, 1 ], [ 1, 1 ],
+						[ 2, 1 ] ]);
 		this.playAnimation();
 	}
 });
@@ -149,8 +183,7 @@ Crafty.c("exeAttack3", {
 Crafty.c("exeAttack4", {
 	init : function() {
 		this.addComponent("attackAnimation");
-		this.setAnimation("Attack4", [ [ 0, 0 ], [ 1, 0 ], [ 2, 0 ], [ 3, 0 ],
-				[ 4, 0 ], [ 0, 1 ], [ 1, 1 ] ]);
+		this.setAnimation("Attack4", [ [ 0, 0 ], [ 1, 0 ], [ 2, 0 ], [ 3, 0 ], [ 4, 0 ], [ 0, 1 ], [ 1, 1 ] ]);
 		this.playAnimation();
 	}
 });
@@ -158,8 +191,7 @@ Crafty.c("exeAttack4", {
 Crafty.c("exeAttack5", {
 	init : function() {
 		this.addComponent("attackAnimation");
-		this.setAnimation("Attack5", [ [ 0, 0 ], [ 1, 0 ], [ 2, 0 ], [ 3, 0 ],
-				[ 4, 0 ], [ 0, 1 ], [ 1, 1 ] ]);
+		this.setAnimation("Attack5", [ [ 0, 0 ], [ 1, 0 ], [ 2, 0 ], [ 3, 0 ], [ 4, 0 ], [ 0, 1 ], [ 1, 1 ] ]);
 		this.playAnimation();
 	}
 });
@@ -167,8 +199,7 @@ Crafty.c("exeAttack5", {
 Crafty.c("exeMeteor", {
 	init : function() {
 		this.addComponent("attackAnimation");
-		this.setAnimation("Meteor", [ [ 0, 3 ], [ 1, 3 ], [ 2, 3 ], [ 3, 3 ],
-				[ 4, 3 ], [ 0, 4 ], [ 1, 4 ] ]);
+		this.setAnimation("Meteor", [ [ 0, 3 ], [ 1, 3 ], [ 2, 3 ], [ 3, 3 ], [ 4, 3 ], [ 0, 4 ], [ 1, 4 ] ]);
 		// this.setAnimation("Meteor", [ [ 3, 0 ], [ 4, 0 ], [ 0, 1 ], [ 1, 1 ],
 		// [ 2, 1 ], [ 3, 1 ], [ 4, 1 ], [ 0, 2 ], [ 1, 2 ], [ 2, 2 ],
 		// [ 3, 2 ], [ 4, 2 ], [ 0, 3 ], [ 1, 3 ], [ 2, 3 ], [ 3, 3 ],
@@ -180,8 +211,8 @@ Crafty.c("exeMeteor", {
 Crafty.c("exeDarkness1", {
 	init : function() {
 		this.addComponent("attackAnimation");
-		this.setAnimation("Darkness1", [ [ 0, 0 ], [ 1, 0 ], [ 2, 0 ],
-				[ 3, 0 ], [ 4, 0 ], [ 0, 1 ], [ 1, 1 ], [ 2, 1 ], [ 3, 1 ] ]);
+		this.setAnimation("Darkness1", [ [ 0, 0 ], [ 1, 0 ], [ 2, 0 ], [ 3, 0 ], [ 4, 0 ], [ 0, 1 ], [ 1, 1 ],
+				[ 2, 1 ], [ 3, 1 ] ]);
 		// this.setAnimation("Darkness1", [ [ 0, 0 ], [ 1, 0 ], [ 2, 0 ],
 		// [ 3, 0 ], [ 0, 0 ], [ 1, 0 ], [ 2, 0 ], [ 3, 0 ], [ 0, 0 ],
 		// [ 1, 0 ], [ 2, 0 ], [ 3, 0 ], [ 4, 0 ], [ 0, 1 ], [ 1, 1 ],
@@ -197,11 +228,9 @@ Crafty.c("exeDarkness1", {
 Crafty.c("exeLight7", {
 	init : function() {
 		this.addComponent("attackAnimation");
-		this.setAnimation("Light7", [ [ 0, 0 ], [ 1, 0 ], [ 2, 0 ], [ 3, 0 ],
-				[ 4, 0 ], [ 0, 1 ], [ 1, 1 ], [ 2, 1 ], [ 3, 1 ], [ 4, 1 ],
-				[ 0, 2 ], [ 1, 2 ], [ 2, 2 ], [ 3, 2 ], [ 4, 2 ], [ 0, 3 ],
-				[ 1, 3 ], [ 2, 3 ], [ 3, 3 ], [ 4, 3 ], [ 0, 4 ], [ 1, 4 ],
-				[ 2, 4 ], [ 3, 4 ], [ 4, 4 ], [ 0, 5 ], [ 1, 5 ], [ 2, 5 ],
+		this.setAnimation("Light7", [ [ 0, 0 ], [ 1, 0 ], [ 2, 0 ], [ 3, 0 ], [ 4, 0 ], [ 0, 1 ], [ 1, 1 ], [ 2, 1 ],
+				[ 3, 1 ], [ 4, 1 ], [ 0, 2 ], [ 1, 2 ], [ 2, 2 ], [ 3, 2 ], [ 4, 2 ], [ 0, 3 ], [ 1, 3 ], [ 2, 3 ],
+				[ 3, 3 ], [ 4, 3 ], [ 0, 4 ], [ 1, 4 ], [ 2, 4 ], [ 3, 4 ], [ 4, 4 ], [ 0, 5 ], [ 1, 5 ], [ 2, 5 ],
 				[ 3, 5 ], [ 4, 5 ] ]);
 		this.playAnimation(-1);
 	}
@@ -226,9 +255,8 @@ Crafty.c("exeIce32", {
 Crafty.c("exeHeal1", {
 	init : function() {
 		this.addComponent("attackAnimation");
-		this.setAnimation("Heal1", [ [ 3, 3 ], [ 4, 3 ], [ 0, 4 ], [ 1, 4 ],
-				[ 2, 4 ], [ 3, 4 ], [ 4, 4 ], [ 0, 5 ], [ 1, 5 ], [ 2, 5 ],
-				[ 3, 5 ] ]);
+		this.setAnimation("Heal1", [ [ 3, 3 ], [ 4, 3 ], [ 0, 4 ], [ 1, 4 ], [ 2, 4 ], [ 3, 4 ], [ 4, 4 ], [ 0, 5 ],
+				[ 1, 5 ], [ 2, 5 ], [ 3, 5 ] ]);
 		this.playAnimation();
 	}
 });
@@ -236,7 +264,7 @@ Crafty.c("exeHeal1", {
 Crafty.c("exeHeal2", {
 	init : function() {
 		this.addComponent("attackAnimation");
-		 this.setAnimation("Heal2", [ [ 4, 0 ], [ 0, 1 ], [ 1, 1 ], [ 2, 1 ] ]);
+		this.setAnimation("Heal2", [ [ 4, 0 ], [ 0, 1 ], [ 1, 1 ], [ 2, 1 ] ]);
 		this.playAnimation(-1);
 	}
 });
@@ -244,10 +272,9 @@ Crafty.c("exeHeal2", {
 Crafty.c("exeHeal4", {
 	init : function() {
 		this.addComponent("attackAnimation");
-		this.setAnimation("Heal4", [ [ 0, 0 ], [ 1, 0 ], [ 2, 0 ], [ 3, 0 ],
-				[ 4, 0 ], [ 0, 1 ], [ 1, 1 ], [ 2, 1 ], [ 3, 1 ], [ 4, 1 ],
-				[ 0, 2 ], [ 1, 2 ], [ 2, 2 ], [ 3, 2 ], [ 4, 2 ], [ 0, 3 ],
-				[ 1, 3 ], [ 2, 3 ], [ 3, 3 ], [ 4, 3 ], [ 0, 4 ], [ 1, 4 ] ]);
+		this.setAnimation("Heal4", [ [ 0, 0 ], [ 1, 0 ], [ 2, 0 ], [ 3, 0 ], [ 4, 0 ], [ 0, 1 ], [ 1, 1 ], [ 2, 1 ],
+				[ 3, 1 ], [ 4, 1 ], [ 0, 2 ], [ 1, 2 ], [ 2, 2 ], [ 3, 2 ], [ 4, 2 ], [ 0, 3 ], [ 1, 3 ], [ 2, 3 ],
+				[ 3, 3 ], [ 4, 3 ], [ 0, 4 ], [ 1, 4 ] ]);
 		this.playAnimation();
 	}
 });
@@ -255,8 +282,8 @@ Crafty.c("exeHeal4", {
 Crafty.c("exeHeal6", {
 	init : function() {
 		this.addComponent("attackAnimation");
-		this.setAnimation("Heal6", [ [ 0, 0 ], [ 1, 0 ], [ 2, 0 ], [ 3, 0 ],
-				[ 4, 0 ], [ 0, 1 ], [ 1, 1 ], [ 2, 1 ], [ 3, 1 ], [ 4, 1 ] ]);
+		this.setAnimation("Heal6", [ [ 0, 0 ], [ 1, 0 ], [ 2, 0 ], [ 3, 0 ], [ 4, 0 ], [ 0, 1 ], [ 1, 1 ], [ 2, 1 ],
+				[ 3, 1 ], [ 4, 1 ] ]);
 		this.playAnimation();
 	}
 });
@@ -264,19 +291,19 @@ Crafty.c("exeHeal6", {
 Crafty.c("exeHeal62", {
 	init : function() {
 		this.addComponent("attackAnimation");
-		this.setAnimation("Heal6", [ [ 0, 2 ], [ 1, 2 ], [ 2, 2 ], [ 3, 2 ],
-				[ 4, 2 ], [ 0, 3 ], [ 1, 3 ], [ 2, 3 ], [ 3, 3 ], [ 4, 3 ],
-				[ 0, 4 ], [ 1, 4 ], [ 2, 4 ], [ 3, 4 ], [ 4, 4 ], [ 0, 5 ],
-				[ 1, 5 ], [ 2, 5 ], [ 3, 5 ], [ 4, 5 ] ]);
+		this.setAnimation("Heal6", [ [ 0, 2 ], [ 1, 2 ], [ 2, 2 ], [ 3, 2 ], [ 4, 2 ], [ 0, 3 ], [ 1, 3 ], [ 2, 3 ],
+				[ 3, 3 ], [ 4, 3 ], [ 0, 4 ], [ 1, 4 ], [ 2, 4 ], [ 3, 4 ], [ 4, 4 ], [ 0, 5 ], [ 1, 5 ], [ 2, 5 ],
+				[ 3, 5 ], [ 4, 5 ] ]);
 		this.playAnimation();
 	}
 });
 
-Crafty.c("exeState6", {
-	init : function() {
-		this.addComponent("attackAnimation");
-		this.setAnimation("State6", [ [ 0, 0 ], [ 1, 0 ], [ 2, 0 ], [ 3, 0 ],
-				[ 4, 0 ], [ 0, 1 ], [ 1, 1 ], [ 2, 1 ] ]);
-		this.playAnimation();
-	}
-});
+Crafty.c("exeState6",
+		{
+			init : function() {
+				this.addComponent("attackAnimation");
+				this.setAnimation("State6", [ [ 0, 0 ], [ 1, 0 ], [ 2, 0 ], [ 3, 0 ], [ 4, 0 ], [ 0, 1 ], [ 1, 1 ],
+						[ 2, 1 ] ]);
+				this.playAnimation();
+			}
+		});
